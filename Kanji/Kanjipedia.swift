@@ -11,8 +11,20 @@ struct KanjipediaService: KanjiDataProviderPr {
     private let requestQueue = DispatchQueue(label: "request", qos: .userInitiated)
     
     func getKanjiData(for kanji: Kanji) async throws -> KanjiData {
-        let html = try await getRawHtml(for: kanji)
-        return try extractKanjiData(from: html)
+        let task = Task {
+            let html = try await getRawHtml(for: kanji)
+            return try extractKanjiData(from: html)
+        }
+        let wait = Task {
+            try await Task.sleep(for: .seconds(10))
+            task.cancel()
+        }
+        defer { wait.cancel() }
+        return try await withTaskCancellationHandler {
+            try await task.value
+        } onCancel: {
+            
+        }
     }
     
     // MARK: get raw HTML

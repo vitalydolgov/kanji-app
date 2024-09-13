@@ -9,6 +9,13 @@ struct LearnView: View {
                 CardFrontView(kanjiData: kanjiData, showAnswer: viewModel.showAnswer)
             } else if case .back = viewModel.state, let kanjiData = viewModel.kanjiData {
                 CardBackView(kanjiData: kanjiData, putBack: viewModel.putBackTakeNext)
+            } else if case .error = viewModel.state {
+                Spacer()
+                
+                Text("Cannot load data :(")
+                    .bold()
+                
+                Spacer()
             } else {
                 Spacer()
             }
