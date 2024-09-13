@@ -1,7 +1,6 @@
 import Foundation
 
-final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject
-                                                    where I.Instance == Card {
+final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject where I.Instance == Card {
     @Published var cards = [Card]()
     @Published var showingDeleteConfirmation = false
     let didSavePub: NotificationCenter.Publisher

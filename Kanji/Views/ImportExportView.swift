@@ -1,7 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ImportCommand<I: CardInteractorPr>: View where I.Record == CDCard {
+struct ImportCommand<I: ImportExportPr>: View where I.Record == CDCard {
     @State private var importing = false
     let interactor: I
 
@@ -26,7 +26,7 @@ struct ImportCommand<I: CardInteractorPr>: View where I.Record == CDCard {
     }
 }
 
-struct ExportCommand<I: CardInteractorPr>: View where I.Record == CDCard {
+struct ExportCommand<I: ImportExportPr>: View where I.Record == CDCard {
     @State private var exporting = false
     @State private var document: TextDocument?
     let interactor: I

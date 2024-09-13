@@ -1,6 +1,6 @@
 import CoreData
 
-struct CardImportExport<I: CardInteractorPr> where I.Record == CDCard {
+struct CardImportExport<I: ImportExportPr> where I.Record == CDCard {
     let interactor: I
     
     func importFile(_ file: URL) throws {
@@ -21,7 +21,7 @@ struct CardImportExport<I: CardInteractorPr> where I.Record == CDCard {
             record.state = state
             records.append(record)
         }
-        try interactor.importRecords(records, insertContext: context)
+        try interactor.importRecords(records)
     }
     
     private func readFile(_ file: URL) throws -> String? {

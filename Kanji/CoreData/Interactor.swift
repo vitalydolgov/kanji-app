@@ -13,7 +13,11 @@ protocol CardInteractorPr {
     func updateState(for card: Instance, with state: CardState) throws
     func deleteAllData() throws
     func saveCards(_ cards: [Instance]) throws
-    func importRecords(_ records: [Record], insertContext: NSManagedObjectContext) throws
+}
+
+protocol ImportExportPr {
+    associatedtype Record
+    func importRecords(_ records: [Record]) throws
     func exportRecords() throws  -> [Record]
 }
 
@@ -23,7 +27,7 @@ extension CardInteractorPr {
     }
 }
 
-struct CardInteractor: CardInteractorPr {
+struct CardInteractor: CardInteractorPr, ImportExportPr {
     typealias Record = CDCard
     typealias Instance = Card
     
@@ -51,8 +55,8 @@ struct CardInteractor: CardInteractorPr {
     }
     
     func deleteAllData() throws {
-        let request = NSBatchDeleteRequest(fetchRequest: CDCard.fetchRequest())
-        try context.execute(request)
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: CDCard.fetchRequest())
+        try context.execute(batchDelete)
         notifyDidSave()
     }
     
@@ -66,10 +70,22 @@ struct CardInteractor: CardInteractorPr {
         try context.save()
     }
     
-    func importRecords(_ records: [CDCard], insertContext: NSManagedObjectContext) throws {
-        insertContext.parent = context
-        try insertContext.save()
-        try context.save()
+    func importRecords(_ records: [CDCard]) throws {
+        var index = 0
+        let batchInsert = NSBatchInsertRequest(entity: CDCard.entity(), 
+                                               managedObjectHandler: { object in
+            guard index < records.count, 
+                  let record = object as? CDCard else {
+                return true
+            }
+            let data = records[index]
+            record.kanjiUtf8 = data.kanjiUtf8
+            record.state = data.state
+            index += 1
+            return false
+        })
+        try context.execute(batchInsert)
+        notifyDidSave()
     }
     
     func exportRecords() throws  -> [CDCard] {
