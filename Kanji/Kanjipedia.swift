@@ -78,26 +78,40 @@ struct KanjipediaService: KanjiDataProviderPr {
     }
     
     private func extractYomi(from elem: Element) throws -> [Yomi] {
-        let parts = try elem.getElementsByClass("onkunYomi")
-        guard parts.count == 2 else {
-            throw Exception.invalidData
-        }
-        removeAdvancedYomi(in: parts[0])
-        removeAdvancedYomi(in: parts[1])
+        let allYomiElems = try elem.getElementsByClass("onkunYomi")
         let separator = try Regex("\u{30FB}|\\s+")
-        let onyomiParts = try parts[0].text().split(separator: separator)
-        let kunyomiParts = try parts[1].text().split(separator: separator)
         var results = [Yomi]()
-        for part in onyomiParts {
-            results.append(Yomi(type: .on, value: String(part)))
-        }
-        for part in kunyomiParts {
-            results.append(Yomi(type: .kun, value: String(part)))
+        for elem in allYomiElems {
+            let type = try getYomiType(for: elem)
+            removeAdvancedYomi(in: elem)
+            let yomiParts = try elem.text().split(separator: separator)
+            for part in yomiParts {
+                results.append(Yomi(type: type, value: String(part)))
+            }
         }
         return results
     }
     
     private func removeAdvancedYomi(in elem: Element) {
         try? elem.getElementsByAttributeValue("style", "color:#000000").first()?.replaceWith(Node())
+    }
+    
+    private func getYomiType(for elem: Element) throws -> Yomi.YomiType {
+        guard let parentElem = elem.parent() else {
+            throw Exception.invalidData
+        }
+        let hasElement = { char in
+            guard let elem = try? parentElem.getElementsByAttributeValue("alt", char) else {
+                return false
+            }
+            return !elem.isEmpty()
+        }
+        if hasElement("\u{97F3}") {
+            return .on
+        } else if hasElement("\u{8A13}") {
+            return .kun
+        } else {
+            throw Exception.invalidData
+        }
     }
 }

@@ -135,7 +135,7 @@ struct YomiView: View {
     
     var body: some View {
         HStack(alignment: .top) {
-            let icon = if case .kun = type { "\u{97F3}" } else { "\u{8A13}" }
+            let icon = if case .kun = type { "\u{8A13}" } else { "\u{97F3}" }
             Text(icon)
                 .bold()
             
