@@ -41,6 +41,11 @@ struct KanjiApp: App {
         Window("Database", id: "database") {
             DatabaseView(viewModel: state.databaseViewModel)
         }
+        
+        Window("Settings", id: "settings") {
+            SettingsView(viewModel: state.settingsViewModel)
+        }
+        .windowResizability(.contentSize)
     }
 }
 
@@ -51,13 +56,16 @@ enum Exception: Error {
 final class AppState: ObservableObject {
     @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor>
     @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor>>
+    @ObservedObject var settingsViewModel: SettingsViewModel<SettingsInteractorUserDefaults>
     let interactor: CardInteractor
     let session: Session<CardInteractor>
     
     init(context: NSManagedObjectContext) throws {
         self.interactor = CardInteractor(context: context)
-        self.session = try Session(interactor: interactor)
+        self.session = try Session(interactor: interactor,
+                                   settingsProvider: SettingsInteractorUserDefaults())
         self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())
         self.databaseViewModel = DatabaseViewModel(interactor: interactor)
+        self.settingsViewModel = SettingsViewModel(interactor: SettingsInteractorUserDefaults())
     }
 }

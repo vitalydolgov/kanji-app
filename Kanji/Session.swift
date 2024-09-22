@@ -11,18 +11,30 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
     private let deck: Deck<Card>
     private let interactor: I
     
-    init(interactor: I) throws {
-        self.interactor = interactor
-        let cards = try interactor.fetchData()
-        let maxNew = 20
-        let newCards = cards.lazy
+    init(interactor: I, settingsProvider: some SettingsProviderPr) throws {
+        let settings = Self.getSettings(using: settingsProvider)
+        let maxAdditonalCards = settings.maxAdditionalCards
+        let newLearnedRatio = settings.newLearnedRatio
+        let maxNewCards = Int(Double(maxAdditonalCards) * newLearnedRatio)
+        let newCards = try interactor.fetchData()
             .filter { $0.state == .new }
-            .prefix(maxNew)
-        let recallCards = cards.lazy
+            .prefix(maxNewCards)
+        let recallCards = try interactor.fetchDataRandomized()
             .filter { $0.state == .learned }
-            .prefix(maxNew - newCards.count)
-        let repeatCards = cards.filter { $0.state == .repeat }
+            .prefix(maxAdditonalCards - newCards.count)
+        let repeatCards = try interactor.fetchDataRandomized()
+            .filter { $0.state == .repeat }
+        self.interactor = interactor
         self.deck = Deck(cards: repeatCards + Array(newCards) + Array(recallCards))
+    }
+    
+    private static func getSettings(
+        using provider: some SettingsProviderPr
+    ) -> Settings {
+        guard let settings = provider.fetchSettings() else {
+            return provider.default
+        }
+        return settings
     }
     
     func cardsLeft() async -> Int {

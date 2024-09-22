@@ -12,7 +12,7 @@ final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject where I.Ins
     }
 
     func fetchData() throws {
-        cards = try interactor.fetchData()
+        cards = Array(try interactor.fetchData())
     }
     
     func updateState(for card: Card, with state: CardState) throws {

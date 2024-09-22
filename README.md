@@ -19,6 +19,12 @@ Although the app takes hardcore approach, if you don't remember card, state alwa
 
 There are a couple of shortcuts: In *Learn* window you can press `space` to show back side, and `space` again to mark success, or `x` to mark failure.
 
+### Settings
+
+You can change certain learning parameters in Settings window (*Window -> Settings*):
+- Maximum number of additional cards, i.e. not marked for repeating,
+- Ratio between new and learned cards in that amount.
+
 ## Import, export and editing
 
 You can import the first portion of cards in Database window (*Window -> Database*) with *Database -> Import*. File should have CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). It's also possible to export in this format with *Database -> Export*.

@@ -9,7 +9,8 @@ protocol CardInteractorPr {
     associatedtype Record: Transformer where Record.Target == Instance
     associatedtype Instance
     var didSavePub: NotificationCenter.Publisher { get }
-    func fetchData() throws -> [Instance]
+    func fetchData() throws -> IndexingIterator<[Instance]>
+    func fetchDataRandomized() throws -> IndexingIterator<[Instance]>
     func updateState(for card: Instance, with state: CardState) throws
     func deleteAllData() throws
     func saveCards(_ cards: [Instance]) throws
@@ -40,10 +41,14 @@ struct CardInteractor: CardInteractorPr, ImportExportPr {
                                                                object: context)
     }
     
-    func fetchData() throws -> [Card] {
+    func fetchData() throws -> IndexingIterator<[Card]> {
         let request = CDCard.fetchRequest()
         let records = try context.fetch(request)
-        return records.compactMap { $0.transform() }
+        return records.compactMap { $0.transform() }.makeIterator()
+    }
+    
+    func fetchDataRandomized() throws -> IndexingIterator<[Card]> {
+        Array(try fetchData()).shuffled().makeIterator()
     }
     
     func updateState(for card: Card, with state: CardState) throws {

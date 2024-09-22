@@ -26,6 +26,9 @@
 		F11E32982C90D32F00B42E43 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32972C90D32F00B42E43 /* Card.swift */; };
 		F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329B2C90F24700B42E43 /* ImportExportView.swift */; };
 		F11E329E2C90F2D000B42E43 /* ImporExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329D2C90F2D000B42E43 /* ImporExport.swift */; };
+		F13A26CA2CA04DA8003A06AE /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26C92CA04DA6003A06AE /* Settings.swift */; };
+		F13A26CC2CA05A2E003A06AE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CB2CA05A29003A06AE /* SettingsView.swift */; };
+		F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */; };
 		F17860BF2C91DECA00626B16 /* FocusedWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17860BE2C91DECA00626B16 /* FocusedWindow.swift */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +52,9 @@
 		F11E32972C90D32F00B42E43 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		F11E329B2C90F24700B42E43 /* ImportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportView.swift; sourceTree = "<group>"; };
 		F11E329D2C90F2D000B42E43 /* ImporExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImporExport.swift; sourceTree = "<group>"; };
+		F13A26C92CA04DA6003A06AE /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		F13A26CB2CA05A29003A06AE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		F17860BE2C91DECA00626B16 /* FocusedWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -84,6 +90,7 @@
 		F11E32622C8B93B000B42E43 /* Kanji */ = {
 			isa = PBXGroup;
 			children = (
+				F13A26C92CA04DA6003A06AE /* Settings.swift */,
 				F11E32632C8B93B000B42E43 /* KanjiApp.swift */,
 				F11E328E2C8E058100B42E43 /* Session.swift */,
 				F11E32812C8C5A4F00B42E43 /* Deck.swift */,
@@ -112,6 +119,8 @@
 				F11E328A2C8DDEBE00B42E43 /* LearnViewModel.swift */,
 				F11E32902C8F43B900B42E43 /* DatabaseView.swift */,
 				F11E32922C903C4300B42E43 /* DatabaseViewModel.swift */,
+				F13A26CB2CA05A29003A06AE /* SettingsView.swift */,
+				F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */,
 				F11E329B2C90F24700B42E43 /* ImportExportView.swift */,
 				F17860BE2C91DECA00626B16 /* FocusedWindow.swift */,
 			);
@@ -171,7 +180,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					F11E325F2C8B93B000B42E43 = {
 						CreatedOnToolsVersion = 15.4;
@@ -222,12 +231,15 @@
 				F11E32782C8B945900B42E43 /* Kanjipedia.swift in Sources */,
 				F11E32932C903C4300B42E43 /* DatabaseViewModel.swift in Sources */,
 				F11E326D2C8B93B100B42E43 /* Persistence.swift in Sources */,
+				F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */,
 				F11E32912C8F43B900B42E43 /* DatabaseView.swift in Sources */,
+				F13A26CC2CA05A2E003A06AE /* SettingsView.swift in Sources */,
 				F11E32662C8B93B000B42E43 /* LearnView.swift in Sources */,
 				F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */,
 				F11E32642C8B93B000B42E43 /* KanjiApp.swift in Sources */,
 				F11E329E2C90F2D000B42E43 /* ImporExport.swift in Sources */,
 				F11E32952C90B59B00B42E43 /* Interactor.swift in Sources */,
+				F13A26CA2CA04DA8003A06AE /* Settings.swift in Sources */,
 				F11E32982C90D32F00B42E43 /* Card.swift in Sources */,
 				F11E328B2C8DDEBE00B42E43 /* LearnViewModel.swift in Sources */,
 				F11E32702C8B93B100B42E43 /* Kanji.xcdatamodeld in Sources */,
@@ -273,6 +285,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -336,6 +349,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -366,10 +380,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Kanji/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = 6LKU4RTSKK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -392,10 +408,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Kanji/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = 6LKU4RTSKK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
