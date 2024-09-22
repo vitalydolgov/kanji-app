@@ -2,44 +2,50 @@ import Foundation
 import Combine
 
 final class SettingsViewModel<I: SettingsProviderPr>: ObservableObject {
-    @Published var maxAdditionalCards: Int {
-        didSet(newValue) {
-            maxAdditionalCardsSubj.send(newValue)
-        }
-    }
-    @Published var newLearnedRatio: Double {
-        didSet(newValue) {
-            newLearnedRatioSubj.send(newValue)
-        }
-    }
-    
-    private var subscriptions = Set<AnyCancellable>()
-    private let maxAdditionalCardsSubj = PassthroughSubject<Int, Never>()
-    private let newLearnedRatioSubj = PassthroughSubject<Double, Never>()
+    @Published var items = [SettingsItemViewModel]()
+    private var settings: Settings
+    private var saveEventSubsc: AnyCancellable?
+    private let saveEvent = PassthroughSubject<(), Never>()
     private let interactor: I
     
     init(interactor: I) {
-        let settings = interactor.fetchSettings() ?? interactor.default
-        self.maxAdditionalCards = settings.maxAdditionalCards
-        self.newLearnedRatio = settings.newLearnedRatio
+        self.settings = interactor.fetchSettings() ?? interactor.default()
         self.interactor = interactor
+        setupSubscriptions()
+        setupItems()
     }
     
-    func setupSubscriptions() {
-        maxAdditionalCardsSubj.combineLatest(newLearnedRatioSubj)
-            .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-            .filter { maxAdditionalCards, newLearnedRatio in
-                guard maxAdditionalCards >= 0, (0 ..< 1).contains(newLearnedRatio) else {
-                    return false
+    private func setupSubscriptions() {
+        saveEventSubsc = saveEvent
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .sink { [self] _ in
+                do {
+                    try interactor.saveSettings(settings)
+                } catch {
+                    assertionFailure()
                 }
-                return true
             }
-            .map { maxAdditionalCards, newLearnedRatio in
-                Settings(maxAdditionalCards: maxAdditionalCards,
-                         newLearnedRatio: newLearnedRatio)
-            }.sink { settings in
-                try? self.interactor.saveSettings(settings)
+    }
+    
+    private func setupItems() {
+        let maxAdditionalCards = SettingsItemViewModel(label: "Maximum additional cards",
+                                                       value: NonnegIntegerSettingsItem(settings.maxAdditionalCards),
+                                                       formatter: NonnegIntegerSettingsItemFormatter()) { [weak self] item in
+            guard let self, let item = item as? NonnegIntegerSettingsItem, item.isValid else {
+                assertionFailure(); return
             }
-            .store(in: &subscriptions)
+            settings.maxAdditionalCards = item.value
+            saveEvent.send(())
+        }
+        let newLearnedRatio = SettingsItemViewModel(label: "Percentage of new cards",
+                                                    value: Float01SettingsItem(settings.newLearnedRatio),
+                                                    formatter: Float01SettingsItemFormatter()) { [weak self] item in
+            guard let self, let item = item as? Float01SettingsItem, item.isValid else {
+                assertionFailure(); return
+            }
+            settings.newLearnedRatio = item.value
+            saveEvent.send(())
+        }
+        items = [maxAdditionalCards, newLearnedRatio]
     }
 }

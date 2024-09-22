@@ -32,7 +32,7 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
         using provider: some SettingsProviderPr
     ) -> Settings {
         guard let settings = provider.fetchSettings() else {
-            return provider.default
+            return provider.default()
         }
         return settings
     }

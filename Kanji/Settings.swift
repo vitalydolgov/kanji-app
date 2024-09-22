@@ -1,23 +1,23 @@
 import Foundation
 
 protocol DefaultPr {
-    var `default`: Settings { get }
+    func `default`() -> Settings
 }
 
 protocol SettingsInteractorPr {
     func fetchSettings() -> Settings?
-    func saveSettings(_ settings: Settings) throws
+    func saveSettings(_ settings: borrowing Settings) throws
 }
 
 typealias SettingsProviderPr = SettingsInteractorPr & DefaultPr
 
-struct Settings {
-    let maxAdditionalCards: Int
-    let newLearnedRatio: Double
+struct Settings: ~Copyable {
+    var maxAdditionalCards: Int
+    var newLearnedRatio: Double
 }
 
 struct SettingsInteractorUserDefaults: SettingsProviderPr {
-    var `default`: Settings {
+    func `default`() -> Settings {
         Settings(maxAdditionalCards: 20, newLearnedRatio: 0.8)
     }
     
@@ -31,7 +31,7 @@ struct SettingsInteractorUserDefaults: SettingsProviderPr {
                         newLearnedRatio: newLearnedRatio)
     }
     
-    func saveSettings(_ settings: Settings) throws {
+    func saveSettings(_ settings: borrowing Settings) throws {
         let export: [String: Any] = [
             "maxAdditionalCards": settings.maxAdditionalCards,
             "newLearnedRatio": settings.newLearnedRatio
