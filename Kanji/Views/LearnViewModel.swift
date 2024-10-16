@@ -1,10 +1,10 @@
 import Foundation
 
-enum LearnViewModelState {
-    case front, back, loading, error
+enum LearnViewModelState: Equatable {
+    case front, back(guess: GuessResult), loading, error
 }
 
-@MainActor 
+@MainActor
 final class LearnViewModel<Session: SessionPr>: ObservableObject {
     @Published var state: LearnViewModelState = .loading
     var kanjiData: KanjiData?
@@ -20,9 +20,6 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
     }
     
     func takeNextCard() async throws {
-        if state != .error {
-            state = .loading
-        }
         currentCard = await session.takeNext()
         cardsLeft = await session.cardsLeft()
         if let currentCard {
@@ -43,7 +40,9 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
     }
     
     func putBackTakeNext(_ guess: GuessResult) {
+        state = .back(guess: guess)
         Task {
+            try await Task.sleep(for: .seconds(0.5))
             await putBackCard(guess)
             try await takeNextCard()
         }
@@ -58,7 +57,7 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
     
     func showAnswer() {
         Task {
-            state = .back
+            state = .back(guess: .unknown)
         }
     }
 }

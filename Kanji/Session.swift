@@ -38,7 +38,7 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
     }
     
     func cardsLeft() async -> Int {
-        await deck.cardsLeft
+        await deck.cardsLeft + 1
     }
     
     func takeNext() async -> Card? {

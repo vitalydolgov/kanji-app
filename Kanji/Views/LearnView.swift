@@ -6,9 +6,13 @@ struct LearnView: View {
     var body: some View {
         VStack(spacing: 20) {
             if case .front = viewModel.state, let kanjiData = viewModel.kanjiData {
-                CardFrontView(kanjiData: kanjiData, showAnswer: viewModel.showAnswer)
+                CardFrontView(state: $viewModel.state,
+                              kanjiData: kanjiData,
+                              showAnswer: viewModel.showAnswer)
             } else if case .back = viewModel.state, let kanjiData = viewModel.kanjiData {
-                CardBackView(kanjiData: kanjiData, putBack: viewModel.putBackTakeNext)
+                CardBackView(state: $viewModel.state,
+                             kanjiData: kanjiData,
+                             putBack: viewModel.putBackTakeNext)
             } else if case .error = viewModel.state {
                 Spacer()
                 
@@ -19,16 +23,17 @@ struct LearnView: View {
             } else {
                 Spacer()
             }
-                        
+            
             ZStack {
                 let cardsLeft = viewModel.cardsLeft
-
+                
                 RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
                     .fill(.gray)
                     .frame(width: 30 + (cardsLeft < 1000 ? 0 : 10), height: 20)
                 
                 Text("\(cardsLeft)")
                     .foregroundStyle(.white)
+                    .bold()
             }
         }
         .padding(.vertical, 20)
@@ -59,13 +64,18 @@ struct LearnView: View {
     }
 }
 
-struct CardFrontView: View {
+private struct CardFrontView: View {
+    @Binding var state: LearnViewModelState
     let kanjiData: KanjiData
     let showAnswer: () -> ()
     
     var body: some View {
         VStack(spacing: 20) {
-            KanjiView(kanji: kanjiData.kanji)
+            VStack(spacing: 10) {
+                KanjiView(kanji: kanjiData.kanji)
+                
+                AnswerIndicator(state: $state)
+            }
             
             Spacer()
             
@@ -74,24 +84,30 @@ struct CardFrontView: View {
             } label: {
                 Text("Show Answer")
             }
+            .buttonStyle(ShrinkingButton(backgroundColor: .cyan))
         }
     }
 }
 
-struct CardBackView: View {
+private struct CardBackView: View {
+    @Binding var state: LearnViewModelState
     let kanjiData: KanjiData
     let putBack: (GuessResult) -> ()
     
     var body: some View {
         VStack(spacing: 40) {
-            KanjiView(kanji: kanjiData.kanji)
+            VStack(spacing: 10) {
+                KanjiView(kanji: kanjiData.kanji)
                 
+                AnswerIndicator(state: $state)
+            }
+            
             VStack(alignment: .leading, spacing: 10) {
                 YomiView(type: .on, yomi: kanjiData.onyomi)
                 
                 YomiView(type: .kun, yomi: kanjiData.kunyomi)
             }
-        
+            
             Spacer()
             
             HStack {
@@ -100,36 +116,33 @@ struct CardBackView: View {
                 } label: {
                     Text("Again")
                 }
+                .buttonStyle(ShrinkingButton(backgroundColor: .brown))
                 
                 Button {
                     putBack(.good)
                 } label: {
                     Text("Good")
                 }
+                .buttonStyle(ShrinkingButton(backgroundColor: .cyan))
             }
         }
     }
 }
 
-struct KanjiView: View {
+private struct KanjiView: View {
     let kanji: Kanji
     
     var body: some View {
         let kanji = String(kanji.value)
         
-        VStack(spacing: 0) {
-            Text(kanji)
-                .textSelection(.enabled)
-                .font(.system(size: 50))
-            
-            Rectangle()
-                .fill(.gray)
-                .frame(width: 54, height: 2)
-        }
+        Text(kanji)
+            .textSelection(.enabled)
+            .font(.system(size: 50))
+            .shadow(radius: 2)
     }
 }
 
-struct YomiView: View {
+private struct YomiView: View {
     let type: Yomi.YomiType
     let yomi: [Yomi]
     
@@ -176,5 +189,39 @@ struct YomiView: View {
             results.append(partial)
         }
         return results
+    }
+}
+
+private struct ShrinkingButton: ButtonStyle {
+    let backgroundColor: Color
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal)
+            .padding(.vertical, 7)
+            .background(backgroundColor)
+            .foregroundStyle(.white)
+            .fontWeight(.medium)
+            .clipShape(Capsule())
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+            .shadow(radius: 1)
+    }
+}
+
+private struct AnswerIndicator: View {
+    @Binding var state: LearnViewModelState
+    
+    var body: some View {
+        let color: Color = switch state {
+        case .back(.again): .brown
+        case .back(.good): .green
+        default: .cyan
+        }
+        
+        Rectangle()
+            .fill(color)
+            .frame(width: 54, height: 2)
+            .shadow(radius: 1)
     }
 }
