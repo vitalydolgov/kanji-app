@@ -118,7 +118,7 @@ extension CDCard: Transformer {
     }
 }
 
-struct Card: CardPr, Identifiable {
+struct Card: CardPr {
     let id: NSManagedObjectID
     let kanji: Kanji
     var state: CardState

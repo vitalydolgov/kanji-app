@@ -38,7 +38,7 @@ struct LearnView: View {
         }
         .padding(.vertical, 20)
         .onAppear {
-            Task { try? await viewModel.takeNextCard() }
+            Task { await viewModel.takeNextCard() }
         }
         .focusable(interactions: .edit)
         .focusEffectDisabled()

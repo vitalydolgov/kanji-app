@@ -1,11 +1,12 @@
 import Foundation
 
-protocol CardPr {
+protocol CardPr: Identifiable {
     var kanji: Kanji { get }
     var state: CardState { get set }
 }
 
 struct CardImport: CardPr {
+    let id = UUID()
     let kanji: Kanji
     var state: CardState
 }

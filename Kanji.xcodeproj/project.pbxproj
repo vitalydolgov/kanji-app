@@ -18,7 +18,6 @@
 		F11E327E2C8BA12300B42E43 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = F11E327D2C8BA12300B42E43 /* SwiftSoup */; };
 		F11E32822C8C5A4F00B42E43 /* Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32812C8C5A4F00B42E43 /* Deck.swift */; };
 		F11E328B2C8DDEBE00B42E43 /* LearnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E328A2C8DDEBE00B42E43 /* LearnViewModel.swift */; };
-		F11E328D2C8E04FA00B42E43 /* Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E328C2C8E04FA00B42E43 /* Mock.swift */; };
 		F11E328F2C8E058100B42E43 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E328E2C8E058100B42E43 /* Session.swift */; };
 		F11E32912C8F43B900B42E43 /* DatabaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32902C8F43B900B42E43 /* DatabaseView.swift */; };
 		F11E32932C903C4300B42E43 /* DatabaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32922C903C4300B42E43 /* DatabaseViewModel.swift */; };
@@ -46,7 +45,6 @@
 		F11E32772C8B945900B42E43 /* Kanjipedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kanjipedia.swift; sourceTree = "<group>"; };
 		F11E32812C8C5A4F00B42E43 /* Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deck.swift; sourceTree = "<group>"; };
 		F11E328A2C8DDEBE00B42E43 /* LearnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnViewModel.swift; sourceTree = "<group>"; };
-		F11E328C2C8E04FA00B42E43 /* Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mock.swift; sourceTree = "<group>"; };
 		F11E328E2C8E058100B42E43 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		F11E32902C8F43B900B42E43 /* DatabaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseView.swift; sourceTree = "<group>"; };
 		F11E32922C903C4300B42E43 /* DatabaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseViewModel.swift; sourceTree = "<group>"; };
@@ -100,7 +98,6 @@
 				F11E32812C8C5A4F00B42E43 /* Deck.swift */,
 				F11E32972C90D32F00B42E43 /* Card.swift */,
 				F11E32772C8B945900B42E43 /* Kanjipedia.swift */,
-				F11E328C2C8E04FA00B42E43 /* Mock.swift */,
 				F11E329A2C90D5CA00B42E43 /* CoreData */,
 				F11E32962C90CF1900B42E43 /* Views */,
 				F11E32992C90D50900B42E43 /* Resources */,
@@ -251,7 +248,6 @@
 				F13A26D02CA0A0D1003A06AE /* SettingsItemView.swift in Sources */,
 				F13A26D22CA0A0D8003A06AE /* SettingsItemViewModel.swift in Sources */,
 				F11E32702C8B93B100B42E43 /* Kanji.xcdatamodeld in Sources */,
-				F11E328D2C8E04FA00B42E43 /* Mock.swift in Sources */,
 				F17860BF2C91DECA00626B16 /* FocusedWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

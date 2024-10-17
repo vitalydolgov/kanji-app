@@ -18,7 +18,7 @@ struct KanjiApp: App {
             CommandGroup(after: .newItem, addition: {
                 Button("Save Progress") {
                     Task {
-                        try! await state.session.saveCards()
+                        try await state.session.saveCards()
                     }
                 }
                 .disabled(secondaryWindow != nil)

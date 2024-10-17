@@ -1,8 +1,9 @@
 import Foundation
 
 actor Deck<Card: CardPr> {
-    fileprivate let repeatPile: Pile<Card>
-    fileprivate let goodPile: Pile<Card>
+    var takenCard: Card?
+    private let repeatPile: Pile<Card>
+    private let goodPile: Pile<Card>
     
     init(cards: [Card]) {
         repeatPile = Pile(cards: cards)
@@ -11,6 +12,7 @@ actor Deck<Card: CardPr> {
     
     func takeRandomCard() async -> Card? {
         if let card = repeatPile.takeRandomCard() {
+            takenCard = card
             return card
         } else {
             return nil
@@ -23,35 +25,50 @@ actor Deck<Card: CardPr> {
         } else {
             repeatPile.append(card)
         }
+        takenCard = nil
     }
     
     var allCards: [Card] {
-        goodPile.cards + repeatPile.cards
+        var results = goodPile.cards + repeatPile.cards
+        if let takenCard {
+            results.append(takenCard)
+        }
+        return results
     }
     
     var cardsLeft: Int {
-        repeatPile.cards.count
+        repeatPile.size + (takenCard == nil ? 0 : 1)
     }
 }
 
-fileprivate class Pile<Card: CardPr> {
-    var cards: [Card]
+private class Pile<Card: CardPr> {
+    private var cardDic = [Card.ID: Card]()
     
     init(cards: [Card]) {
-        self.cards = cards
+        for card in cards {
+            cardDic[card.id] = card
+        }
     }
     
-    var size: Int { cards.count }
+    var size: Int { cardDic.count }
+    
+    var cards: [Card] {
+        var results = [Card]()
+        for card in cardDic.values {
+            results.append(card)
+        }
+        return results
+    }
     
     func append(_ card: Card) {
-        cards.append(card)
+        cardDic[card.id] = card
     }
     
     func takeRandomCard() -> Card? {
-        guard !cards.isEmpty else {
+        guard let (id, card) = cardDic.randomElement() else {
             return nil
         }
-        let index = Int.random(in: 0 ..< cards.count)
-        return cards.remove(at: index)
+        cardDic[id] = nil
+        return card
     }
 }

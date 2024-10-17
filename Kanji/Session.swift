@@ -3,7 +3,7 @@ import Foundation
 protocol SessionPr {
     associatedtype Card: CardPr
     func takeNext() async -> Card?
-    func putBack(_ card: Card, guess: GuessResult) async
+    func putBack(guess: GuessResult) async
     func cardsLeft() async -> Int
 }
 
@@ -38,7 +38,7 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
     }
     
     func cardsLeft() async -> Int {
-        await deck.cardsLeft + 1
+        await deck.cardsLeft
     }
     
     func takeNext() async -> Card? {
@@ -48,8 +48,10 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
         return card
     }
     
-    func putBack(_ card: Card, guess: GuessResult) async {
-        var card = card
+    func putBack(guess: GuessResult) async {
+        guard var card = await deck.takenCard else {
+            assertionFailure(); return
+        }
         switch guess {
         case .good:
             card.state = switch card.state {

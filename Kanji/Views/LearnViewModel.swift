@@ -8,7 +8,6 @@ enum LearnViewModelState: Equatable {
 final class LearnViewModel<Session: SessionPr>: ObservableObject {
     @Published var state: LearnViewModelState = .loading
     var kanjiData: KanjiData?
-    var currentCard: Session.Card?
     var cardsLeft: Int = 0
     
     let session: Session
@@ -19,10 +18,9 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
         self.dataProvider = dataProvider
     }
     
-    func takeNextCard() async throws {
-        currentCard = await session.takeNext()
+    func takeNextCard() async {
         cardsLeft = await session.cardsLeft()
-        if let currentCard {
+        if let currentCard = await session.takeNext() {
             let kanji = currentCard.kanji
             do {
                 kanjiData = try await dataProvider.getKanjiData(for: kanji)
@@ -30,7 +28,7 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
             } catch {
                 kanjiData = nil
                 state = .error
-                try await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(2))
                 putBackTakeNext(.unknown)
             }
         } else {
@@ -44,15 +42,12 @@ final class LearnViewModel<Session: SessionPr>: ObservableObject {
         Task {
             try await Task.sleep(for: .seconds(0.5))
             await putBackCard(guess)
-            try await takeNextCard()
+            await takeNextCard()
         }
     }
     
     private func putBackCard(_ guess: GuessResult) async {
-        guard let card = currentCard else {
-            return
-        }
-        await session.putBack(card, guess: guess)
+        await session.putBack(guess: guess)
     }
     
     func showAnswer() {
