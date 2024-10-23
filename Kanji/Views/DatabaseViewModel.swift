@@ -1,7 +1,10 @@
 import Foundation
 
-final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject where I.Instance == Card {
-    @Published var cards = [Card]()
+final class DatabaseViewModel<I: CardInteractorPr, T: Transformer>: ObservableObject
+                             where I.Record == T, I.Instance == Card {
+    typealias TransformedCard = TransformedValue<T.PersistenceID, Card>
+    
+    @Published var cards = [TransformedCard]()
     @Published var showingDeleteConfirmation = false
     let didSavePub: NotificationCenter.Publisher
     private let interactor: I
@@ -15,7 +18,7 @@ final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject where I.Ins
         cards = Array(try interactor.fetchData())
     }
     
-    func updateState(for card: Card, with state: CardState) throws {
+    func updateState(for card: TransformedCard, with state: CardState) throws {
         try interactor.updateState(for: card, with: state)
     }
     

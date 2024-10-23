@@ -9,7 +9,7 @@ enum LearnViewModelState: Equatable {
 
 @MainActor
 final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
-where S.OperationID == UUID {
+                          where S.OperationID == UUID {
     @Published var state: LearnViewModelState = .start
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0

@@ -64,7 +64,7 @@ enum Exception: Error {
 }
 
 final class AppState<S: SettingsProviderPr>: ObservableObject {
-    @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor>
+    @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor, CDCard>
     @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor, S>>
     @ObservedObject var settingsViewModel: SettingsViewModel<S>
     let interactor: CardInteractor

@@ -1,19 +1,21 @@
 import CoreData
 
 protocol Transformer {
-    associatedtype Target
-    func transform() -> Target?
+    associatedtype PersistenceID
+    associatedtype Target: Identifiable
+    func transform() -> TransformedValue<PersistenceID, Target>?
 }
 
 protocol CardInteractorPr {
     associatedtype Record: Transformer where Record.Target == Instance
     associatedtype Instance
+    typealias TransformedRecord = TransformedValue<Record.PersistenceID, Instance>
     var didSavePub: NotificationCenter.Publisher { get }
-    func fetchData() throws -> IndexingIterator<[Instance]>
-    func fetchDataRandomized() throws -> IndexingIterator<[Instance]>
-    func updateState(for card: Instance, with state: CardState) throws
+    func fetchData() throws -> IndexingIterator<[TransformedRecord]>
+    func fetchDataRandomized() throws -> IndexingIterator<[TransformedRecord]>
+    func updateState(for card: TransformedRecord, with state: CardState) throws
     func deleteAllData() throws
-    func saveCards(_ cards: [Instance]) throws
+    func saveCards(_ cards: [TransformedRecord]) throws
 }
 
 protocol ImportExportPr {
@@ -24,7 +26,7 @@ protocol ImportExportPr {
 
 extension CardInteractorPr {
     func make(from record: Record) -> Instance? {
-        record.transform()
+        record.transform()?.value
     }
 }
 
@@ -41,18 +43,18 @@ struct CardInteractor: CardInteractorPr, ImportExportPr {
                                                                object: context)
     }
     
-    func fetchData() throws -> IndexingIterator<[Card]> {
+    func fetchData() throws -> IndexingIterator<[TransformedCard]> {
         let request = CDCard.fetchRequest()
         let records = try context.fetch(request)
         return records.compactMap { $0.transform() }.makeIterator()
     }
     
-    func fetchDataRandomized() throws -> IndexingIterator<[Card]> {
+    func fetchDataRandomized() throws -> IndexingIterator<[TransformedCard]> {
         Array(try fetchData()).shuffled().makeIterator()
     }
     
-    func updateState(for card: Card, with state: CardState) throws {
-        guard let record = context.object(with: card.id) as? CDCard else {
+    func updateState(for card: TransformedRecord, with state: CardState) throws {
+        guard let record = context.object(with: card.originalID) as? CDCard else {
             assertionFailure(); return
         }
         record.state = Int16(state.rawValue)
@@ -65,12 +67,12 @@ struct CardInteractor: CardInteractorPr, ImportExportPr {
         notifyDidSave()
     }
     
-    func saveCards(_ cards: [Card]) throws {
+    func saveCards(_ cards: [TransformedRecord]) throws {
         for card in cards {
-            guard let export = context.registeredObject(for: card.id) as? CDCard else {
+            guard let export = try context.existingObject(with: card.originalID) as? CDCard else {
                 assertionFailure(); continue
             }
-            export.state = Int16(card.state.rawValue)
+            export.state = Int16(card.value.state.rawValue)
         }
         try context.save()
     }
@@ -107,19 +109,30 @@ struct CardInteractor: CardInteractorPr, ImportExportPr {
 // MARK: Model
 
 extension CDCard: Transformer {
-    typealias Target = Card
-    
-    func transform() -> Card? {
+    func transform() -> TransformedCard? {
         guard let kanji = Kanji(kanjiUtf8),
               let state = CardState(rawValue: Int(state)) else {
             assertionFailure(); return nil
         }
-        return Card(id: objectID, kanji: kanji, state: state)
+        let card = Card(kanji: kanji, state: state)
+        return TransformedValue(value: card, originalID: objectID)
+    }
+}
+
+struct TransformedValue<ID, Value>: Identifiable
+                       where Value: Identifiable {
+    var value: Value
+    let originalID: ID
+    
+    var id: Value.ID {
+        value.id
     }
 }
 
 struct Card: CardPr {
-    let id: NSManagedObjectID
+    let id = UUID()
     let kanji: Kanji
     var state: CardState
 }
+
+typealias TransformedCard = TransformedValue<NSManagedObjectID, Card>

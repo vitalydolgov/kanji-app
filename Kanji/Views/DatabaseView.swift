@@ -1,17 +1,18 @@
 import SwiftUI
 
-struct DatabaseView: View {
-    @ObservedObject var viewModel: DatabaseViewModel<CardInteractor>
+struct DatabaseView<I: CardInteractorPr, T: Transformer>: View
+                   where I.Record == T, I.Instance == Card {
+    @ObservedObject var viewModel: DatabaseViewModel<I, T>
     @StateObject private var window = FocusedWindow(.database)
 
     var body: some View {
         Table(viewModel.cards) {
             TableColumn("Character") { card in
-                Text("\(card.kanji.character)")
+                Text("\(card.value.kanji.character)")
                     .font(.system(size: 20))
             }
             TableColumn("Level") { card in
-                CardStateView(selected: card.state) { newValue in
+                CardStateView(selected: card.value.state) { newValue in
                     try? viewModel.updateState(for: card, with: newValue)
                 }
                 .id(UUID())
