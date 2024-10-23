@@ -1,14 +1,18 @@
-final class Deck<Card: CardPr> {
+struct Deck<Card: CardPr> {
     private(set) var takenCard: Card?
     private let repeatPile: Pile<Card>
     private let goodPile: Pile<Card>
+    
+    init() {
+        self.init(cards: [])
+    }
     
     init(cards: [Card]) {
         repeatPile = Pile(cards: cards)
         goodPile = Pile(cards: [])
     }
     
-    func replaceCard(_ card: Card, prevGuess: GuessResult) {
+    mutating func replaceCard(_ card: Card, prevGuess: GuessResult) {
         switch prevGuess {
         case .good:
             goodPile.remove(card)
@@ -19,14 +23,14 @@ final class Deck<Card: CardPr> {
         }
     }
     
-    func takeRandomCard() throws(OperationError) {
+    mutating func takeRandomCard() throws(OperationError) {
         guard let card = repeatPile.takeRandomCard() else {
             throw .cannotPerform
         }
         takenCard = card
     }
     
-    func returnTakenCard() {
+    mutating func returnTakenCard() {
         guard let card = takenCard else {
             assertionFailure(); return
         }
@@ -34,7 +38,7 @@ final class Deck<Card: CardPr> {
         takenCard = nil
     }
     
-    func putBackCard(_ card: Card, success: Bool) {
+    mutating func putBackCard(_ card: Card, success: Bool) {
         if success {
             goodPile.append(card)
         } else {

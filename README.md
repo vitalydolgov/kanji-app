@@ -22,6 +22,7 @@ There are a couple of shortcuts: In *Learn* window you can press `space` to show
 ### Settings
 
 You can change certain learning parameters in Settings window (*Window -> Settings*):
+- Total maximum of cards, 0 is infinity,
 - Maximum number of additional cards, i.e. not marked for repeating,
 - Ratio between new and learned cards in that amount.
 

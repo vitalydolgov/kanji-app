@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LearnView: View {
-    @ObservedObject var viewModel: LearnViewModel<Session<CardInteractor>>
+    @ObservedObject var viewModel: LearnViewModel<Session<CardInteractor, SettingsInteractorUserDefaults>>
     
     var body: some View {
         VStack(spacing: 20) {
@@ -20,11 +20,35 @@ struct LearnView: View {
                     .font(.title3)
                 
                 Spacer()
-            } else if case .finished = viewModel.state {
+            } else if case .start = viewModel.state {
+                Spacer()
+                
+                let gradient = LinearGradient(colors: [.blue, .cyan],
+                                              startPoint: .leading,
+                                              endPoint: .bottom)
+                Button {
+                    viewModel.startSession()
+                } label: {
+                    Text("Start Learning")
+                }
+                .buttonStyle(ShrinkingButton(background: gradient))
+                
+                Spacer()
+            } else if case .finish = viewModel.state {
                 Spacer()
                 
                 Text("No more cards \u{1F389}")
                     .font(.title3)
+                
+                let gradient = LinearGradient(colors: [.blue, .cyan],
+                                              startPoint: .leading,
+                                              endPoint: .bottom)
+                Button {
+                    try! viewModel.saveProgress()
+                } label: {
+                    Text("Save Progress")
+                }
+                .buttonStyle(ShrinkingButton(background: gradient))
                 
                 Spacer()
             } else {
@@ -44,9 +68,6 @@ struct LearnView: View {
             }
         }
         .padding(.vertical, 20)
-        .onAppear {
-            viewModel.takeNextCard()
-        }
         .focusable(interactions: .edit)
         .focusEffectDisabled()
         .onKeyPress(.space) {
@@ -91,7 +112,7 @@ private struct CardFrontView: View {
             } label: {
                 Text("Show Answer")
             }
-            .buttonStyle(ShrinkingButton(backgroundColor: .cyan))
+            .buttonStyle(ShrinkingButton(background: .cyan))
         }
     }
 }
@@ -123,14 +144,14 @@ private struct CardBackView: View {
                 } label: {
                     Text("Again")
                 }
-                .buttonStyle(ShrinkingButton(backgroundColor: .brown))
+                .buttonStyle(ShrinkingButton(background: .brown))
                 
                 Button {
                     putBack(.good)
                 } label: {
                     Text("Good")
                 }
-                .buttonStyle(ShrinkingButton(backgroundColor: .cyan))
+                .buttonStyle(ShrinkingButton(background: .cyan))
             }
         }
     }
@@ -199,14 +220,14 @@ private struct YomiView: View {
     }
 }
 
-private struct ShrinkingButton: ButtonStyle {
-    let backgroundColor: Color
+private struct ShrinkingButton<S: ShapeStyle>: ButtonStyle {
+    let background: S
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.horizontal)
             .padding(.vertical, 7)
-            .background(backgroundColor)
+            .background(background)
             .foregroundStyle(.white)
             .fontWeight(.medium)
             .clipShape(Capsule())

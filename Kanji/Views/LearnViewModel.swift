@@ -2,13 +2,15 @@ import Foundation
 import Combine
 
 enum LearnViewModelState: Equatable {
-    case front, back(guess: GuessResult?), loading, error, finished
+    case start, finish
+    case front, back(guess: GuessResult?)
+    case loading, error
 }
 
 @MainActor
 final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
 where S.OperationID == UUID {
-    @Published var state: LearnViewModelState = .loading
+    @Published var state: LearnViewModelState = .start
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0
     private var subsc = Set<AnyCancellable>()
@@ -43,12 +45,10 @@ where S.OperationID == UUID {
                 returnCardUnchanged()
                 takeNextCard()
             }
+        } else if session.isFinished {
+            state = .finish
         } else {
-            if session.cardsLeft == 0 {
-                state = .finished
-            } else {
-                state = .loading
-            }
+            state = .start
         }
     }
     
@@ -78,5 +78,17 @@ where S.OperationID == UUID {
     
     @MainActor func showAnswer() {
         state = .back(guess: nil)
+    }
+    
+    func saveProgress() throws {
+        try session.saveCards()
+        session.reset()
+        state = .start
+    }
+    
+    func startSession() {
+        let operation = Operation(type: .start)
+        OperationDispatch.execute(operation, for: session)
+        takeNextCard()
     }
 }

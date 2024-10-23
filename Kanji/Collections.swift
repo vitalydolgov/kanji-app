@@ -1,8 +1,8 @@
 struct Stack<T> {
     private var arr = [T]()
     
-    var count: Int {
-        arr.count
+    var isEmpty: Bool {
+        arr.isEmpty
     }
     
     mutating func push(_ elt: T) {

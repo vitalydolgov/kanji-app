@@ -28,7 +28,16 @@ final class SettingsViewModel<I: SettingsProviderPr>: ObservableObject {
     }
     
     private func setupItems() {
-        let maxAdditionalCards = SettingsItemViewModel(label: "Maximum additional cards",
+        let maxCardsTotal = SettingsItemViewModel(label: "Total maximum of cards",
+                                                  value: NonnegIntegerSettingsItem(settings.maxCardsTotal),
+                                                  formatter: NonnegIntegerSettingsItemFormatter()) { [weak self] item in
+            guard let self, let item = item as? NonnegIntegerSettingsItem, item.isValid else {
+                assertionFailure(); return
+            }
+            settings.maxCardsTotal = item.value
+            saveEvent.send(())
+        }
+        let maxAdditionalCards = SettingsItemViewModel(label: "Maximum of additional cards",
                                                        value: NonnegIntegerSettingsItem(settings.maxAdditionalCards),
                                                        formatter: NonnegIntegerSettingsItemFormatter()) { [weak self] item in
             guard let self, let item = item as? NonnegIntegerSettingsItem, item.isValid else {
@@ -46,6 +55,6 @@ final class SettingsViewModel<I: SettingsProviderPr>: ObservableObject {
             settings.newLearnedRatio = item.value
             saveEvent.send(())
         }
-        items = [maxAdditionalCards, newLearnedRatio]
+        items = [maxCardsTotal, maxAdditionalCards, newLearnedRatio]
     }
 }

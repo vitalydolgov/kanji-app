@@ -3,11 +3,12 @@ import SwiftUI
 @main
 struct KanjiApp: App {
     let persistence = PersistenceController.shared
-    @ObservedObject var state: AppState
+    @ObservedObject var state: AppState<SettingsInteractorUserDefaults>
     @FocusedValue(\.window) var secondaryWindow: FocusedWindow?
     
     init() {
-        self.state = try! AppState(context: persistence.container.viewContext)
+        self.state = try! AppState(context: persistence.container.viewContext,
+                                   settingsInteractor: SettingsInteractorUserDefaults())
     }
     
     var body: some Scene {
@@ -18,6 +19,9 @@ struct KanjiApp: App {
             CommandGroup(after: .newItem, addition: {
                 Group {
                     Button("Undo") {
+                        guard state.learnViewModel.state != .start else {
+                            return
+                        }
                         OperationDispatch.unexecute(for: state.session, count: 2)
                         state.learnViewModel.state = .loading
                     }
@@ -59,19 +63,19 @@ enum Exception: Error {
     case invalidResponse, invalidData
 }
 
-final class AppState: ObservableObject {
+final class AppState<S: SettingsProviderPr>: ObservableObject {
     @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor>
-    @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor>>
-    @ObservedObject var settingsViewModel: SettingsViewModel<SettingsInteractorUserDefaults>
+    @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor, S>>
+    @ObservedObject var settingsViewModel: SettingsViewModel<S>
     let interactor: CardInteractor
-    let session: Session<CardInteractor>
+    let session: Session<CardInteractor, S>
     
-    init(context: NSManagedObjectContext) throws {
+    init(context: NSManagedObjectContext, settingsInteractor: S) throws {
         self.interactor = CardInteractor(context: context)
-        self.session = try Session(interactor: interactor,
-                                   settingsProvider: SettingsInteractorUserDefaults())
+        self.session = Session(interactor: interactor,
+                               settingsProvider: settingsInteractor)
         self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())
         self.databaseViewModel = DatabaseViewModel(interactor: interactor)
-        self.settingsViewModel = SettingsViewModel(interactor: SettingsInteractorUserDefaults())
+        self.settingsViewModel = SettingsViewModel(interactor: settingsInteractor)
     }
 }

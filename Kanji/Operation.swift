@@ -1,6 +1,7 @@
 import Foundation
 
 enum OperationType {
+    case start
     case take
     case markGood
     case markRepeat
@@ -18,12 +19,16 @@ enum OperationError: Error {
 struct OperationHistory {
     private var stack = Stack<Operation>()
     
+    var isEmpty: Bool {
+        stack.isEmpty
+    }
+    
     mutating func add(_ operation: Operation) {
         stack.push(operation)
     }
     
     mutating func remove() -> Operation? {
-        guard stack.count > 0 else {
+        guard !stack.isEmpty else {
             return nil
         }
         return stack.pop()
@@ -35,6 +40,8 @@ struct OperationDispatch<S: SessionPr & Updatable> where S.OperationID == UUID {
         var operation = operation
         do {
             switch operation.type {
+            case .start:
+                try StartOperation.execute(for: session)
             case .take:
                 try TakeOperation.execute(for: session)
             case .markGood:
@@ -58,6 +65,8 @@ struct OperationDispatch<S: SessionPr & Updatable> where S.OperationID == UUID {
                 continue
             }
             switch operation.type {
+            case .start:
+                StartOperation.unexecute(for: session)
             case .take:
                 TakeOperation.unexecute(for: session)
             case .markGood:
@@ -74,6 +83,16 @@ private protocol OperationProtocol {
     associatedtype T
     static func execute(for obj: T) throws
     static func unexecute(for obj: T)
+}
+
+private struct StartOperation<S: SessionPr>: OperationProtocol {
+    static func execute(for session: S) throws {
+        try session.start()
+    }
+    
+    static func unexecute(for session: S) {
+        session.backToStart()
+    }
 }
 
 private struct TakeOperation<S: SessionPr>: OperationProtocol {
