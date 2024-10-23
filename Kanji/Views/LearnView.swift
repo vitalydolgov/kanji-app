@@ -16,8 +16,15 @@ struct LearnView: View {
             } else if case .error = viewModel.state {
                 Spacer()
                 
-                Text("Cannot load data :(")
-                    .bold()
+                Text("Cannot load data \u{2639}\u{FE0F}")
+                    .font(.title3)
+                
+                Spacer()
+            } else if case .finished = viewModel.state {
+                Spacer()
+                
+                Text("No more cards \u{1F389}")
+                    .font(.title3)
                 
                 Spacer()
             } else {
@@ -38,7 +45,7 @@ struct LearnView: View {
         }
         .padding(.vertical, 20)
         .onAppear {
-            Task { await viewModel.takeNextCard() }
+            viewModel.takeNextCard()
         }
         .focusable(interactions: .edit)
         .focusEffectDisabled()

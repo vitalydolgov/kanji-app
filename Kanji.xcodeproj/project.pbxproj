@@ -31,6 +31,8 @@
 		F13A26D02CA0A0D1003A06AE /* SettingsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CF2CA0A0C2003A06AE /* SettingsItemView.swift */; };
 		F13A26D22CA0A0D8003A06AE /* SettingsItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26D12CA0A0D5003A06AE /* SettingsItemViewModel.swift */; };
 		F17860BF2C91DECA00626B16 /* FocusedWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17860BE2C91DECA00626B16 /* FocusedWindow.swift */; };
+		F1B7FDE12CC851060069D182 /* Operation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B7FDE02CC851010069D182 /* Operation.swift */; };
+		F1B7FDE32CC8515B0069D182 /* Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B7FDE22CC851580069D182 /* Collections.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +60,8 @@
 		F13A26CF2CA0A0C2003A06AE /* SettingsItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsItemView.swift; sourceTree = "<group>"; };
 		F13A26D12CA0A0D5003A06AE /* SettingsItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsItemViewModel.swift; sourceTree = "<group>"; };
 		F17860BE2C91DECA00626B16 /* FocusedWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedWindow.swift; sourceTree = "<group>"; };
+		F1B7FDE02CC851010069D182 /* Operation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
+		F1B7FDE22CC851580069D182 /* Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collections.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +96,8 @@
 		F11E32622C8B93B000B42E43 /* Kanji */ = {
 			isa = PBXGroup;
 			children = (
+				F1B7FDE22CC851580069D182 /* Collections.swift */,
+				F1B7FDE02CC851010069D182 /* Operation.swift */,
 				F13A26C92CA04DA6003A06AE /* Settings.swift */,
 				F11E32632C8B93B000B42E43 /* KanjiApp.swift */,
 				F11E328E2C8E058100B42E43 /* Session.swift */,
@@ -237,6 +243,7 @@
 				F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */,
 				F11E32912C8F43B900B42E43 /* DatabaseView.swift in Sources */,
 				F13A26CC2CA05A2E003A06AE /* SettingsView.swift in Sources */,
+				F1B7FDE12CC851060069D182 /* Operation.swift in Sources */,
 				F11E32662C8B93B000B42E43 /* LearnView.swift in Sources */,
 				F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */,
 				F11E32642C8B93B000B42E43 /* KanjiApp.swift in Sources */,
@@ -249,6 +256,7 @@
 				F13A26D22CA0A0D8003A06AE /* SettingsItemViewModel.swift in Sources */,
 				F11E32702C8B93B100B42E43 /* Kanji.xcdatamodeld in Sources */,
 				F17860BF2C91DECA00626B16 /* FocusedWindow.swift in Sources */,
+				F1B7FDE32CC8515B0069D182 /* Collections.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

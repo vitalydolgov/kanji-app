@@ -1,13 +1,28 @@
 import Foundation
+import Combine
 
 protocol SessionPr {
     associatedtype Card: CardPr
-    func takeNext() async -> Card?
-    func putBack(guess: GuessResult) async
-    func cardsLeft() async -> Int
+    var takenCard: Card? { get }
+    var cardsLeft: Int { get }
+    func takeNextCard() throws
+    func returnTakenCard()
+    func markCard(as guess: GuessResult)
+    func unmarkCard(as guess: GuessResult)
+    func pushOperation(_ operation: Operation)
+    func popOperation() -> Operation?
 }
 
-actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
+protocol Updatable {
+    associatedtype OperationID
+    var updatePub: PassthroughSubject<OperationID, Never> { get }
+    func update(_ id: OperationID)
+}
+
+class Session<I: CardInteractorPr>: SessionPr, Updatable where I.Instance == Card {
+    let updatePub = PassthroughSubject<UUID, Never>()
+    private var operationHistory = OperationHistory()
+    private var changeHistory = Stack<Card>()
     private let deck: Deck<Card>
     private let interactor: I
     
@@ -28,30 +43,34 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
         self.deck = Deck(cards: repeatCards + Array(newCards) + Array(recallCards))
     }
     
-    private static func getSettings(
-        using provider: some SettingsProviderPr
-    ) -> Settings {
+    private static func getSettings(using provider: some SettingsProviderPr) -> Settings {
         guard let settings = provider.fetchSettings() else {
             return provider.default()
         }
         return settings
     }
     
-    func cardsLeft() async -> Int {
-        await deck.cardsLeft
+    var takenCard: Card? {
+        deck.takenCard
     }
     
-    func takeNext() async -> Card? {
-        guard let card = await deck.takeRandomCard() else {
-            return nil
-        }
-        return card
+    var cardsLeft: Int {
+        deck.cardsLeft
     }
     
-    func putBack(guess: GuessResult) async {
-        guard var card = await deck.takenCard else {
+    func takeNextCard() throws {
+        try deck.takeRandomCard()
+    }
+    
+    func returnTakenCard() {
+        deck.returnTakenCard()
+    }
+    
+    func markCard(as guess: GuessResult) {
+        guard var card = deck.takenCard else {
             assertionFailure(); return
         }
+        changeHistory.push(card)
         switch guess {
         case .good:
             card.state = switch card.state {
@@ -60,18 +79,42 @@ actor Session<I: CardInteractorPr>: SessionPr where I.Instance == Card {
             }
         case .again:
             card.state = .new
-        case .unknown:
-            break
         }
-        await deck.putBackCard(card, success: guess == .good)
+        deck.putBackCard(card, success: guess == .good)
     }
     
-    func saveCards() async throws {
-        let cards = await deck.allCards
+    func unmarkCard(as guess: GuessResult) {
+        guard let card = changeHistory.pop() else {
+            assertionFailure(); return
+        }
+        deck.replaceCard(card, prevGuess: guess)
+    }
+    
+    func saveCards() throws {
+        let cards = deck.allCards
         try interactor.saveCards(cards)
+    }
+    
+    func pushOperation(_ operation: Operation) {
+        operationHistory.add(operation)
+    }
+    
+    func popOperation() -> Operation? {
+        operationHistory.remove()
+    }
+    
+    func update(_ id: UUID) {
+        updatePub.send(id)
     }
 }
 
 enum GuessResult {
-    case unknown, good, again
+    case good, again
+    
+    var operation: OperationType {
+        switch self {
+        case .good: .markGood
+        case .again: .markRepeat
+        }
+    }
 }

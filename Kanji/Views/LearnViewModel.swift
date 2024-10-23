@@ -1,58 +1,82 @@
 import Foundation
+import Combine
 
 enum LearnViewModelState: Equatable {
-    case front, back(guess: GuessResult), loading, error
+    case front, back(guess: GuessResult?), loading, error, finished
 }
 
 @MainActor
-final class LearnViewModel<Session: SessionPr>: ObservableObject {
+final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
+where S.OperationID == UUID {
     @Published var state: LearnViewModelState = .loading
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0
-    
-    let session: Session
-    let dataProvider: KanjiDataProviderPr
+    private var subsc = Set<AnyCancellable>()
+    private let session: S
+    private let dataProvider: KanjiDataProviderPr
+    private let lock = NSLock()
 
-    init(session: Session, dataProvider: some KanjiDataProviderPr) {
+    init(session: S, dataProvider: some KanjiDataProviderPr) {
         self.session = session
         self.dataProvider = dataProvider
+        session.updatePub
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .sink { [weak self] id in self?.update(id) }
+            .store(in: &subsc)
     }
     
-    func takeNextCard() async {
-        cardsLeft = await session.cardsLeft()
-        if let currentCard = await session.takeNext() {
-            let kanji = currentCard.kanji
+    private func update(_ id: S.OperationID) {
+        Task { await update(id) }
+    }
+        
+    private func update(_ id: S.OperationID) async {
+        cardsLeft = session.cardsLeft
+        if case .loading = state, let currentCard = session.takenCard {
             do {
+                let kanji = currentCard.kanji
                 kanjiData = try await dataProvider.getKanjiData(for: kanji)
                 state = .front
             } catch {
-                kanjiData = nil
                 state = .error
+                kanjiData = nil
                 try? await Task.sleep(for: .seconds(2))
-                putBackTakeNext(.unknown)
+                returnCardUnchanged()
+                takeNextCard()
             }
         } else {
-            kanjiData = nil
-            state = .front
+            if session.cardsLeft == 0 {
+                state = .finished
+            } else {
+                state = .loading
+            }
         }
+    }
+    
+    func takeNextCard() {
+        state = .loading
+        let operation = Operation(type: .take)
+        OperationDispatch.execute(operation, for: session)
+    }
+    
+    private func returnCardUnchanged() {
+        OperationDispatch.unexecute(for: session, count: 1)
     }
     
     func putBackTakeNext(_ guess: GuessResult) {
         state = .back(guess: guess)
         Task {
             try await Task.sleep(for: .seconds(0.5))
-            await putBackCard(guess)
-            await takeNextCard()
+            returnCard(guess)
+            takeNextCard()
         }
     }
     
-    private func putBackCard(_ guess: GuessResult) async {
-        await session.putBack(guess: guess)
+    private func returnCard(_ guess: GuessResult) {
+        let operation = Operation(type: guess.operation)
+        OperationDispatch.execute(operation, for: session)
     }
     
-    func showAnswer() {
-        Task {
-            state = .back(guess: .unknown)
-        }
+    @MainActor func showAnswer() {
+        state = .back(guess: nil)
     }
 }

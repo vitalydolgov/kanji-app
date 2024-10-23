@@ -1,7 +1,5 @@
-import Foundation
-
-actor Deck<Card: CardPr> {
-    var takenCard: Card?
+final class Deck<Card: CardPr> {
+    private(set) var takenCard: Card?
     private let repeatPile: Pile<Card>
     private let goodPile: Pile<Card>
     
@@ -10,16 +8,33 @@ actor Deck<Card: CardPr> {
         goodPile = Pile(cards: [])
     }
     
-    func takeRandomCard() async -> Card? {
-        if let card = repeatPile.takeRandomCard() {
+    func replaceCard(_ card: Card, prevGuess: GuessResult) {
+        switch prevGuess {
+        case .good:
+            goodPile.remove(card)
             takenCard = card
-            return card
-        } else {
-            return nil
+        case .again:
+            repeatPile.remove(card)
+            takenCard = card
         }
     }
     
-    func putBackCard(_ card: Card, success: Bool) async {
+    func takeRandomCard() throws(OperationError) {
+        guard let card = repeatPile.takeRandomCard() else {
+            throw .cannotPerform
+        }
+        takenCard = card
+    }
+    
+    func returnTakenCard() {
+        guard let card = takenCard else {
+            assertionFailure(); return
+        }
+        repeatPile.append(card)
+        takenCard = nil
+    }
+    
+    func putBackCard(_ card: Card, success: Bool) {
         if success {
             goodPile.append(card)
         } else {
@@ -62,6 +77,10 @@ private class Pile<Card: CardPr> {
     
     func append(_ card: Card) {
         cardDic[card.id] = card
+    }
+    
+    func remove(_ card: Card) {
+        cardDic[card.id] = nil
     }
     
     func takeRandomCard() -> Card? {

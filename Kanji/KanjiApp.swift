@@ -16,9 +16,15 @@ struct KanjiApp: App {
         }
         .commands {
             CommandGroup(after: .newItem, addition: {
-                Button("Save Progress") {
-                    Task {
-                        try await state.session.saveCards()
+                Group {
+                    Button("Undo") {
+                        OperationDispatch.unexecute(for: state.session, count: 2)
+                        state.learnViewModel.state = .loading
+                    }
+                    .keyboardShortcut("z")
+                    
+                    Button("Save Progress") {
+                        try! state.session.saveCards()
                     }
                 }
                 .disabled(secondaryWindow != nil)

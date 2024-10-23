@@ -2,7 +2,7 @@
 
 This is simple flashcards app, specifically tuned to learning kanji. All readings (*yomi*) are fetched from [Kanjipedia](https://www.kanjipedia.jp).
 
-![screenshot](screenshot.png)
+<img src="screenshot.png" height="600" />
 
 ## Learning
 
@@ -17,7 +17,7 @@ So if you are good at remembering, state progresses sequentially:
 Although the app takes hardcore approach, if you don't remember card, state always resets:
 *Repeat/Learned --(again)--> New*
 
-There are a couple of shortcuts: In *Learn* window you can press `space` to show back side, and `space` again to mark success, or `x` to mark failure.
+There are a couple of shortcuts: In *Learn* window you can press `space` to show back side, and `space` again to mark success, or `x` to mark failure. You can also undo your answers with `⌘Z`.
 
 ### Settings
 
