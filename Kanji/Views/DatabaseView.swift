@@ -4,20 +4,30 @@ struct DatabaseView<I: CardInteractorPr, T: Transformer>: View
                    where I.Record == T, I.Instance == Card {
     @ObservedObject var viewModel: DatabaseViewModel<I, T>
     @StateObject private var window = FocusedWindow(.database)
+    @State private var searchText = ""
 
     var body: some View {
-        Table(viewModel.cards) {
-            TableColumn("Character") { card in
-                Text("\(card.value.kanji.character)")
-                    .font(.system(size: 20))
-            }
-            TableColumn("Level") { card in
-                CardStateView(selected: card.value.state) { newValue in
-                    try? viewModel.updateState(for: card, with: newValue)
+        VStack {
+            Table(viewModel.filter(by: searchText)) {
+                TableColumn("Character") { card in
+                    Text("\(card.value.kanji.character)")
+                        .font(.system(size: 20))
                 }
-                .id(UUID())
+                TableColumn("Level") { card in
+                    CardStateView(selected: card.value.state) { newValue in
+                        try? viewModel.updateState(for: card, with: newValue)
+                    }
+                    .id(UUID())
+                }
             }
+            HStack {
+                Text("Records: \(viewModel.filteredRecordsNum)")
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 10)
         }
+        .searchable(text: $searchText)
         .onAppear {
             try? viewModel.fetchData()
         }
