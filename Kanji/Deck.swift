@@ -12,15 +12,17 @@ struct Deck<Card: CardPr> {
         goodPile = Pile(cards: [])
     }
     
-    mutating func replaceCard(_ card: Card, prevGuess: GuessResult) {
-        switch prevGuess {
+    mutating func replaceCard(_ id: Card.ID, prevGuess: GuessResult) {
+        let card = switch prevGuess {
         case .good:
-            goodPile.remove(card)
-            takenCard = card
+            goodPile.remove(id)
         case .again:
-            repeatPile.remove(card)
-            takenCard = card
+            repeatPile.remove(id)
         }
+        guard let card else {
+            assertionFailure(); return
+        }
+        takenCard = card
     }
     
     mutating func takeRandomCard() throws(OperationError) {
@@ -83,8 +85,10 @@ private class Pile<Card: CardPr> {
         cardDic[card.id] = card
     }
     
-    func remove(_ card: Card) {
-        cardDic[card.id] = nil
+    func remove(_ id: Card.ID) -> Card? {
+        let card = cardDic[id]
+        cardDic[id] = nil
+        return card
     }
     
     func takeRandomCard() -> Card? {

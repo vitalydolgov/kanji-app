@@ -38,9 +38,8 @@ final class LearnViewModel<S>: ObservableObject
         
     private func update(_ id: S.OperationID) async {
         cardsLeft = session.cardsLeft
-        if case .loading = state {
-            guard let currentCard = session.takenCard,
-                  let kanji = currentCard.kanji else {
+        if case .loading = state, let currentCard = session.takenCard {
+            guard let kanji = currentCard.kanji else {
                 return
             }
             do {

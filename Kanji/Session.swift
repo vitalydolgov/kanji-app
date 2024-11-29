@@ -42,7 +42,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     let updatePub = PassthroughSubject<UUID, Never>()
     let cache: Z
     private var operationHistory = OperationHistory()
-    private var changeHistory = Stack<Card>()
+    private var changeHistory = Stack<HistoryCard>()
     private var deck = SessionDeck()
     private let interactor: I
     private let settingsProvider: S
@@ -123,7 +123,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
         guard let card = deck.value.takenCard else {
             assertionFailure(); return
         }
-        changeHistory.push(card)
+        changeHistory.push(HistoryCard(from: card))
         switch guess {
         case .good:
             card.state = switch card.state {
@@ -137,10 +137,14 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     }
     
     func unmarkCard(as guess: GuessResult) {
-        guard let card = changeHistory.pop() else {
+        guard let history = changeHistory.pop() else {
             assertionFailure(); return
         }
-        deck.value.replaceCard(card, prevGuess: guess)
+        deck.value.replaceCard(history.id, prevGuess: guess)
+        guard let card = deck.value.takenCard else {
+            return
+        }
+        history.recover(card)
     }
     
     func saveCards() throws {
@@ -183,5 +187,19 @@ enum GuessResult {
         case .good: .markGood
         case .again: .markRepeat
         }
+    }
+}
+
+private struct HistoryCard {
+    let id: ObjectIdentifier
+    let state: CardState
+    
+    init(from card: Card) {
+        id = card.id
+        state = card.state
+    }
+    
+    func recover(_ card: Card) {
+        card.state = state
     }
 }
