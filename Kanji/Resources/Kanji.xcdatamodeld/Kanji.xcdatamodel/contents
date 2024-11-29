@@ -3,5 +3,10 @@
     <entity name="Card" representedClassName="Card" syncable="YES" codeGenerationType="class">
         <attribute name="kanjiRaw" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[UInt16]"/>
         <attribute name="stateRaw" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="cache" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DataCache" inverseName="card" inverseEntity="DataCache"/>
+    </entity>
+    <entity name="DataCache" representedClassName="DataCache" syncable="YES" codeGenerationType="class">
+        <attribute name="data" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="Data"/>
+        <relationship name="card" maxCount="1" deletionRule="Nullify" destinationEntity="Card" inverseName="cache" inverseEntity="Card"/>
     </entity>
 </model>

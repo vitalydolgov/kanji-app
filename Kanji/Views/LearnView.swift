@@ -1,18 +1,26 @@
 import SwiftUI
 
 struct LearnView: View {
-    @ObservedObject var viewModel: LearnViewModel<Session<CardInteractor, SettingsInteractorUserDefaults>>
+    @ObservedObject var viewModel: LearnViewModel<Session<Interactor,
+                                                          SettingsInteractorUserDefaults,
+                                                          DataCacheService>>
     
     var body: some View {
         VStack(spacing: 20) {
-            if case .front = viewModel.state, let kanjiData = viewModel.kanjiData {
-                CardFrontView(state: $viewModel.state,
-                              kanjiData: kanjiData,
-                              showAnswer: viewModel.showAnswer)
-            } else if case .back = viewModel.state, let kanjiData = viewModel.kanjiData {
-                CardBackView(state: $viewModel.state,
-                             kanjiData: kanjiData,
-                             putBack: viewModel.putBackTakeNext)
+            if case .front = viewModel.state {
+                if let kanji = viewModel.kanji {
+                    CardFrontView(state: $viewModel.state,
+                                  kanji: kanji,
+                                  showAnswer: viewModel.showAnswer)
+                }
+            } else if case .back = viewModel.state {
+                if let kanji = viewModel.kanji,
+                   let kanjiData = viewModel.kanjiData {
+                    CardBackView(state: $viewModel.state,
+                                 kanji: kanji,
+                                 kanjiData: kanjiData,
+                                 putBack: viewModel.putBackTakeNext)
+                }
             } else if case .error = viewModel.state {
                 Spacer()
                 
@@ -94,13 +102,13 @@ struct LearnView: View {
 
 private struct CardFrontView: View {
     @Binding var state: LearnViewModelState
-    let kanjiData: KanjiData
+    let kanji: Kanji
     let showAnswer: () -> ()
     
     var body: some View {
         VStack(spacing: 20) {
             VStack(spacing: 10) {
-                KanjiView(kanji: kanjiData.kanji)
+                KanjiView(kanji: kanji)
                 
                 AnswerIndicator(state: $state)
             }
@@ -119,13 +127,14 @@ private struct CardFrontView: View {
 
 private struct CardBackView: View {
     @Binding var state: LearnViewModelState
+    let kanji: Kanji
     let kanjiData: KanjiData
     let putBack: (GuessResult) -> ()
     
     var body: some View {
         VStack(spacing: 40) {
             VStack(spacing: 10) {
-                KanjiView(kanji: kanjiData.kanji)
+                KanjiView(kanji: kanji)
                 
                 AnswerIndicator(state: $state)
             }

@@ -63,9 +63,8 @@ struct KanjipediaService: KanjiDataProviderPr {
         guard let html = try doc.body()?.getElementById("resultKanjiList") else {
             throw Exception.invalidData
         }
-        let kanji = try extractKanji(from: html)
         let yomi = try extractYomi(from: html)
-        return KanjiData(kanji: kanji, yomi: yomi)
+        return KanjiData(yomi: yomi)
     }
     
     private func extractKanji(from html: Element) throws -> Kanji {

@@ -9,6 +9,11 @@ struct CardImport: CardPr {
     let id = UUID()
     let kanji: Kanji?
     var state: CardState
+    
+    init(kanji: Kanji, state: CardState) {
+        self.kanji = kanji
+        self.state = state
+    }
 }
 
 enum CardState: Int, CaseIterable, Identifiable, CustomStringConvertible {
@@ -28,8 +33,7 @@ enum CardState: Int, CaseIterable, Identifiable, CustomStringConvertible {
     }
 }
 
-struct KanjiData {
-    let kanji: Kanji
+struct KanjiData: Codable {
     let yomi: [Yomi]
         
     var onyomi: [Yomi] {
@@ -61,11 +65,11 @@ struct Kanji {
     }
 }
 
-struct Yomi: Hashable {
+public struct Yomi: Hashable, Codable {
     let type: YomiType
     let value: String
     
-    enum YomiType {
+    enum YomiType: Codable {
         case on, kun
     }
 }

@@ -1,10 +1,13 @@
 import CoreData
 
-protocol CardInteractorPr {
+protocol InteractorPr {
     var didSavePub: NotificationCenter.Publisher { get }
+    func save() throws
+}
+
+protocol CardInteractorPr: InteractorPr {
     func fetchData() throws -> IndexingIterator<[Card]>
     func fetchDataRandomized() throws -> IndexingIterator<[Card]>
-    func save() throws
     func deleteAllData() throws
 }
 
@@ -14,7 +17,7 @@ protocol ImportExportPr {
     func exportRecords() throws  -> [Record]
 }
 
-struct CardInteractor: CardInteractorPr, ImportExportPr {
+struct Interactor: CardInteractorPr, ImportExportPr {
     let didSavePub: NotificationCenter.Publisher
     private let persistence: NSPersistentContainer
 

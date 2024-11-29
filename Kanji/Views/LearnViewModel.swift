@@ -8,8 +8,9 @@ enum LearnViewModelState: Equatable {
 }
 
 @MainActor
-final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
-                          where S.OperationID == UUID {
+final class LearnViewModel<S>: ObservableObject
+                               where S: SessionPr & Updatable & Cached,
+                                     S.OperationID == UUID {
     @Published var state: LearnViewModelState = .start
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0
@@ -27,6 +28,10 @@ final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
             .store(in: &subsc)
     }
     
+    var kanji: Kanji? {
+        session.takenCard?.kanji
+    }
+    
     private func update(_ id: S.OperationID) {
         Task { await update(id) }
     }
@@ -39,7 +44,13 @@ final class LearnViewModel<S: SessionPr & Updatable>: ObservableObject
                 return
             }
             do {
-                kanjiData = try await dataProvider.getKanjiData(for: kanji)
+                if let cache = session.cache.getData(for: currentCard) {
+                    kanjiData = cache
+                } else {
+                    let newData = try await dataProvider.getKanjiData(for: kanji)
+                    try? session.cache.setData(newData, for: currentCard)
+                    kanjiData = newData
+                }
                 state = .front
             } catch {
                 state = .error

@@ -25,6 +25,7 @@
 		F11E32982C90D32F00B42E43 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32972C90D32F00B42E43 /* Card.swift */; };
 		F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329B2C90F24700B42E43 /* ImportExportView.swift */; };
 		F11E329E2C90F2D000B42E43 /* ImportExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329D2C90F2D000B42E43 /* ImportExport.swift */; };
+		F12381C02CF9CEA60009F9FD /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12381BF2CF9CE9E0009F9FD /* Cache.swift */; };
 		F13A26CA2CA04DA8003A06AE /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26C92CA04DA6003A06AE /* Settings.swift */; };
 		F13A26CC2CA05A2E003A06AE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CB2CA05A29003A06AE /* SettingsView.swift */; };
 		F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */; };
@@ -54,6 +55,7 @@
 		F11E32972C90D32F00B42E43 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		F11E329B2C90F24700B42E43 /* ImportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportView.swift; sourceTree = "<group>"; };
 		F11E329D2C90F2D000B42E43 /* ImportExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExport.swift; sourceTree = "<group>"; };
+		F12381BF2CF9CE9E0009F9FD /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		F13A26C92CA04DA6003A06AE /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		F13A26CB2CA05A29003A06AE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 		F11E329A2C90D5CA00B42E43 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				F12381BF2CF9CE9E0009F9FD /* Cache.swift */,
 				F11E326C2C8B93B100B42E43 /* Persistence.swift */,
 				F11E32942C90B59B00B42E43 /* Interactor.swift */,
 				F11E329D2C90F2D000B42E43 /* ImportExport.swift */,
@@ -239,6 +242,7 @@
 				F11E32822C8C5A4F00B42E43 /* Deck.swift in Sources */,
 				F11E32782C8B945900B42E43 /* Kanjipedia.swift in Sources */,
 				F11E32932C903C4300B42E43 /* DatabaseViewModel.swift in Sources */,
+				F12381C02CF9CEA60009F9FD /* Cache.swift in Sources */,
 				F11E326D2C8B93B100B42E43 /* Persistence.swift in Sources */,
 				F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */,
 				F11E32912C8F43B900B42E43 /* DatabaseView.swift in Sources */,

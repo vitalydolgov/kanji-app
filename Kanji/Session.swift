@@ -2,7 +2,6 @@ import Foundation
 import Combine
 
 protocol SessionPr {
-    associatedtype Card: CardPr
     // state
     var takenCard: Card? { get }
     var cardsLeft: Int { get }
@@ -31,17 +30,27 @@ protocol Updatable {
     func update(_ id: OperationID)
 }
 
-final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Updatable {
+protocol Cached {
+    associatedtype Cache: DataCacheServicePr
+    var cache: Cache { get }
+}
+
+final class Session<I, S, Z>: SessionPr, Updatable, Cached
+                              where I: CardInteractorPr,
+                                    S: SettingsProviderPr,
+                                    Z: DataCacheServicePr {
     let updatePub = PassthroughSubject<UUID, Never>()
+    let cache: Z
     private var operationHistory = OperationHistory()
     private var changeHistory = Stack<Card>()
     private var deck = SessionDeck()
     private let interactor: I
     private let settingsProvider: S
     
-    init(interactor: I, settingsProvider: S) {
+    init(interactor: I, settingsProvider: S, cache: Z) {
         self.interactor = interactor
         self.settingsProvider = settingsProvider
+        self.cache = cache
     }
         
     var takenCard: Card? {

@@ -63,16 +63,18 @@ enum Exception: Error {
 }
 
 final class AppState<S: SettingsProviderPr>: ObservableObject {
-    @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor>
-    @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor, S>>
+    typealias SessionCo = Session<Interactor, S, DataCacheService>
+    @ObservedObject var databaseViewModel: DatabaseViewModel<Interactor>
+    @ObservedObject var learnViewModel: LearnViewModel<SessionCo>
     @ObservedObject var settingsViewModel: SettingsViewModel<S>
-    let interactor: CardInteractor
-    let session: Session<CardInteractor, S>
+    let interactor: Interactor
+    let session: SessionCo
     
     init(persistence: NSPersistentContainer, settingsInteractor: S) throws {
-        self.interactor = CardInteractor(persistence: persistence)
+        self.interactor = Interactor(persistence: persistence)
         self.session = Session(interactor: interactor,
-                               settingsProvider: settingsInteractor)
+                               settingsProvider: settingsInteractor,
+                               cache: DataCacheService())
         self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())
         self.databaseViewModel = DatabaseViewModel(interactor: interactor)
         self.settingsViewModel = SettingsViewModel(interactor: settingsInteractor)
