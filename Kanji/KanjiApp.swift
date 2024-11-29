@@ -2,12 +2,11 @@ import SwiftUI
 
 @main
 struct KanjiApp: App {
-    let persistence = PersistenceController.shared
     @ObservedObject var state: AppState<SettingsInteractorUserDefaults>
     @FocusedValue(\.window) var secondaryWindow: FocusedWindow?
     
     init() {
-        self.state = try! AppState(context: persistence.container.viewContext,
+        self.state = try! AppState(persistence: PersistenceController().container,
                                    settingsInteractor: SettingsInteractorUserDefaults())
     }
     
@@ -64,14 +63,14 @@ enum Exception: Error {
 }
 
 final class AppState<S: SettingsProviderPr>: ObservableObject {
-    @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor, CDCard>
+    @ObservedObject var databaseViewModel: DatabaseViewModel<CardInteractor>
     @ObservedObject var learnViewModel: LearnViewModel<Session<CardInteractor, S>>
     @ObservedObject var settingsViewModel: SettingsViewModel<S>
     let interactor: CardInteractor
     let session: Session<CardInteractor, S>
     
-    init(context: NSManagedObjectContext, settingsInteractor: S) throws {
-        self.interactor = CardInteractor(context: context)
+    init(persistence: NSPersistentContainer, settingsInteractor: S) throws {
+        self.interactor = CardInteractor(persistence: persistence)
         self.session = Session(interactor: interactor,
                                settingsProvider: settingsInteractor)
         self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())

@@ -49,7 +49,7 @@ struct KanjipediaService: KanjiDataProviderPr {
     private func searchUrl(for kanji: Kanji) -> URL {
         let url = baseUrl.appending(path: "search")
         let queryItems = [
-            URLQueryItem(name: "k", value: String(kanji.value)),
+            URLQueryItem(name: "k", value: String(kanji.character)),
             URLQueryItem(name: "kt", value: "1"),
             URLQueryItem(name: "sk", value: "leftHand"),
         ]
@@ -70,11 +70,10 @@ struct KanjipediaService: KanjiDataProviderPr {
     
     private func extractKanji(from html: Element) throws -> Kanji {
         guard let part = try html.getElementsByTag("li").first(),
-              let char = try part.getElementsByTag("a").first()?.text().first,
-              let kanji = Kanji(char) else {
+              let char = try part.getElementsByTag("a").first()?.text().first else {
             throw Exception.invalidData
         }
-        return kanji
+        return Kanji(char)
     }
     
     private func extractYomi(from elem: Element) throws -> [Yomi] {

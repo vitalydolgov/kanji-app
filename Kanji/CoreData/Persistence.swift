@@ -1,8 +1,6 @@
 import CoreData
 
 final class PersistenceController: ObservableObject {
-    static let shared = PersistenceController()
-
     let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {

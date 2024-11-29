@@ -1,10 +1,7 @@
 import Foundation
 
-final class DatabaseViewModel<I: CardInteractorPr, T: Transformer>: ObservableObject
-                             where I.Record == T, I.Instance == Card {
-    typealias TransformedCard = TransformedValue<T.PersistenceID, Card>
-    
-    @Published var cards = [TransformedCard]()
+final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject {
+    @Published var cards = [Card]()
     @Published var showingDeleteConfirmation = false
     var filteredRecordsNum = 0
     let didSavePub: NotificationCenter.Publisher
@@ -19,21 +16,25 @@ final class DatabaseViewModel<I: CardInteractorPr, T: Transformer>: ObservableOb
         cards = Array(try interactor.fetchData())
     }
     
-    func updateState(for card: TransformedCard, with state: CardState) throws {
-        try interactor.updateState(for: card, with: state)
+    func updateState(for card: Card, with state: CardState) throws {
+        card.state = state
+        try interactor.save()
     }
     
     func deleteAllData() throws {
         try interactor.deleteAllData()
     }
     
-    func filter(by string: String) -> [TransformedCard] {
+    func filter(by string: String) -> [Card] {
         if string.isEmpty {
             filteredRecordsNum = cards.count
             return cards
         }
         let filteredCards = cards.filter { card in
-            string.contains(card.value.kanji.character)
+            guard let kanji = card.kanji else {
+                return false
+            }
+            return string.contains(kanji.character)
         }
         filteredRecordsNum = filteredCards.count
         return filteredCards

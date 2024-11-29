@@ -31,8 +31,7 @@ protocol Updatable {
     func update(_ id: OperationID)
 }
 
-final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Updatable
-                    where I.Record == CDCard, I.Instance == Card {
+final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Updatable {
     let updatePub = PassthroughSubject<UUID, Never>()
     private var operationHistory = OperationHistory()
     private var changeHistory = Stack<Card>()
@@ -71,25 +70,23 @@ final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Upda
         let settings = getSettings(using: settingsProvider)
         let maxCardsTotal = settings.maxCardsTotal == 0 ? Int.max : settings.maxCardsTotal
         let repeatCards = try interactor.fetchDataRandomized()
-            .filter { $0.value.state == .repeat }
+            .filter { $0.state == .repeat }
         if repeatCards.count > maxCardsTotal {
             let originalCards = Array(repeatCards.prefix(maxCardsTotal))
-            let cards = originalCards.map { $0.value }
-            deck = SessionDeck(value: Deck(cards: cards), originalCards: originalCards)
+            deck = SessionDeck(cards: originalCards)
             return
         }
         let maxAdditonalCards = min(maxCardsTotal - repeatCards.count, settings.maxAdditionalCards)
         let newLearnedRatio = settings.newLearnedRatio
         let maxNewCards = Int(Double(maxAdditonalCards) * newLearnedRatio)
         let newCards = try interactor.fetchData()
-            .filter { $0.value.state == .new }
+            .filter { $0.state == .new }
             .prefix(maxNewCards)
         let recallCards = try interactor.fetchDataRandomized()
-            .filter { $0.value.state == .learned }
+            .filter { $0.state == .learned }
             .prefix(maxAdditonalCards - newCards.count)
         let originalCards = Array((repeatCards + newCards + recallCards).shuffled())
-        let cards = originalCards.map { $0.value }
-        deck = SessionDeck(value: Deck(cards: cards), originalCards: originalCards)
+        deck = SessionDeck(cards: originalCards)
     }
     
     func backToStart() {
@@ -114,7 +111,7 @@ final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Upda
     }
     
     func markCard(as guess: GuessResult) {
-        guard var card = deck.value.takenCard else {
+        guard let card = deck.value.takenCard else {
             assertionFailure(); return
         }
         changeHistory.push(card)
@@ -138,16 +135,7 @@ final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Upda
     }
     
     func saveCards() throws {
-        let deckCards = deck.value.allCards
-        var results = [TransformedCard]()
-        for var card in deck.originalCards {
-            guard let updatedCard = deckCards.first(where: { $0.id == card.value.id }) else {
-                assertionFailure(); continue
-            }
-            card.value = updatedCard
-            results.append(card)
-        }
-        try interactor.saveCards(results)
+        try interactor.save()
     }
     
     func pushOperation(_ operation: Operation) {
@@ -165,16 +153,16 @@ final class Session<I: CardInteractorPr, S: SettingsProviderPr>: SessionPr, Upda
 
 private struct SessionDeck {
     var value: Deck<Card>
-    let originalCards: [TransformedCard]
+    let originalCards: [Card]
     
     init() {
         self.value = Deck()
         self.originalCards = []
     }
     
-    init(value: Deck<Card>, originalCards: [TransformedCard]) {
-        self.value = value
-        self.originalCards = originalCards
+    init(cards: [Card]) {
+        self.value = Deck(cards: cards)
+        self.originalCards = cards
     }
 }
 

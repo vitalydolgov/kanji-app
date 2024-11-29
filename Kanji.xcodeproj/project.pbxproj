@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,7 +24,7 @@
 		F11E32952C90B59B00B42E43 /* Interactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32942C90B59B00B42E43 /* Interactor.swift */; };
 		F11E32982C90D32F00B42E43 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E32972C90D32F00B42E43 /* Card.swift */; };
 		F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329B2C90F24700B42E43 /* ImportExportView.swift */; };
-		F11E329E2C90F2D000B42E43 /* ImporExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329D2C90F2D000B42E43 /* ImporExport.swift */; };
+		F11E329E2C90F2D000B42E43 /* ImportExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11E329D2C90F2D000B42E43 /* ImportExport.swift */; };
 		F13A26CA2CA04DA8003A06AE /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26C92CA04DA6003A06AE /* Settings.swift */; };
 		F13A26CC2CA05A2E003A06AE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CB2CA05A29003A06AE /* SettingsView.swift */; };
 		F13A26CE2CA05A40003A06AE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */; };
@@ -53,7 +53,7 @@
 		F11E32942C90B59B00B42E43 /* Interactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interactor.swift; sourceTree = "<group>"; };
 		F11E32972C90D32F00B42E43 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		F11E329B2C90F24700B42E43 /* ImportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportView.swift; sourceTree = "<group>"; };
-		F11E329D2C90F2D000B42E43 /* ImporExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImporExport.swift; sourceTree = "<group>"; };
+		F11E329D2C90F2D000B42E43 /* ImportExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExport.swift; sourceTree = "<group>"; };
 		F13A26C92CA04DA6003A06AE /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		F13A26CB2CA05A29003A06AE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F13A26CD2CA05A39003A06AE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -152,7 +152,7 @@
 			children = (
 				F11E326C2C8B93B100B42E43 /* Persistence.swift */,
 				F11E32942C90B59B00B42E43 /* Interactor.swift */,
-				F11E329D2C90F2D000B42E43 /* ImporExport.swift */,
+				F11E329D2C90F2D000B42E43 /* ImportExport.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -197,7 +197,6 @@
 				};
 			};
 			buildConfigurationList = F11E325B2C8B93B000B42E43 /* Build configuration list for PBXProject "Kanji" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -209,6 +208,7 @@
 				F11E32792C8B95A700B42E43 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				F11E327C2C8BA12300B42E43 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = F11E32612C8B93B000B42E43 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -247,7 +247,7 @@
 				F11E32662C8B93B000B42E43 /* LearnView.swift in Sources */,
 				F11E329C2C90F24700B42E43 /* ImportExportView.swift in Sources */,
 				F11E32642C8B93B000B42E43 /* KanjiApp.swift in Sources */,
-				F11E329E2C90F2D000B42E43 /* ImporExport.swift in Sources */,
+				F11E329E2C90F2D000B42E43 /* ImportExport.swift in Sources */,
 				F11E32952C90B59B00B42E43 /* Interactor.swift in Sources */,
 				F13A26CA2CA04DA8003A06AE /* Settings.swift in Sources */,
 				F11E32982C90D32F00B42E43 /* Card.swift in Sources */,

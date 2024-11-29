@@ -161,7 +161,7 @@ private struct KanjiView: View {
     let kanji: Kanji
     
     var body: some View {
-        let kanji = String(kanji.value)
+        let kanji = String(kanji.character)
         
         Text(kanji)
             .textSelection(.enabled)

@@ -1,13 +1,13 @@
 import Foundation
 
 protocol CardPr: Identifiable {
-    var kanji: Kanji { get }
+    var kanji: Kanji? { get }
     var state: CardState { get set }
 }
 
 struct CardImport: CardPr {
     let id = UUID()
-    let kanji: Kanji
+    let kanji: Kanji?
     var state: CardState
 }
 
@@ -42,24 +42,18 @@ struct KanjiData {
 }
 
 struct Kanji {
-    let value: Unicode.Scalar
+    let character: Character
     
-    init?(_ value: Int32) {
-        guard let value = Unicode.Scalar(Int(value)) else {
+    init(_ character: Character) {
+        self.character = character
+    }
+
+    init?(_ array: [UInt16]) {
+        guard !array.isEmpty else {
             return nil
         }
-        self.value = value
-    }
-    
-    init?(_ character: Character) {
-        guard let scalar = character.unicodeScalars.first else {
-            return nil
-        }
-        value = scalar
-    }
-    
-    var character: Character {
-        Character(value)
+        let string = array.compactMap { UnicodeScalar($0) }.reduce("") { $0 + String($1) }
+        self.init(Character(string))
     }
     
     var description: String {

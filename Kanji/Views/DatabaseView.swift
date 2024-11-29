@@ -1,8 +1,7 @@
 import SwiftUI
 
-struct DatabaseView<I: CardInteractorPr, T: Transformer>: View
-                   where I.Record == T, I.Instance == Card {
-    @ObservedObject var viewModel: DatabaseViewModel<I, T>
+struct DatabaseView<I: CardInteractorPr>: View {
+    @ObservedObject var viewModel: DatabaseViewModel<I>
     @StateObject private var window = FocusedWindow(.database)
     @State private var searchText = ""
 
@@ -10,11 +9,13 @@ struct DatabaseView<I: CardInteractorPr, T: Transformer>: View
         VStack {
             Table(viewModel.filter(by: searchText)) {
                 TableColumn("Character") { card in
-                    Text("\(card.value.kanji.character)")
-                        .font(.system(size: 20))
+                    if let kanji = card.kanji {
+                        Text("\(kanji.character)")
+                            .font(.system(size: 20))
+                    }
                 }
                 TableColumn("Level") { card in
-                    CardStateView(selected: card.value.state) { newValue in
+                    CardStateView(selected: card.state) { newValue in
                         try? viewModel.updateState(for: card, with: newValue)
                     }
                     .id(UUID())

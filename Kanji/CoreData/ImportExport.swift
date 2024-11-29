@@ -1,6 +1,6 @@
 import CoreData
 
-struct CardImportExport<I: ImportExportPr> where I.Record == CDCard {
+struct CardImportExport<I: ImportExportPr> where I.Record == Card {
     let interactor: I
     
     func importFile(_ file: URL) throws {
@@ -9,16 +9,17 @@ struct CardImportExport<I: ImportExportPr> where I.Record == CDCard {
             return
         }
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        var records = [CDCard]()
+        var records = [Card]()
         for line in lines {
             let fields = line.split(separator: ";")
-            guard let kanjiUtf8 = fields[0].unicodeScalars.first?.value,
-                  let state = Int16(fields[1]) else {
+            let kanjiRaw = fields[0].utf16.map { UInt16($0) }
+            guard !kanjiRaw.isEmpty,
+                  let stateRaw = Int16(fields[1]) else {
                 continue
             }
-            let record = CDCard(context: context)
-            record.kanjiUtf8 = Int32(kanjiUtf8)
-            record.state = state
+            let record = Card(context: context)
+            record.kanjiRaw = kanjiRaw
+            record.stateRaw = stateRaw
             records.append(record)
         }
         try interactor.importRecords(records)
@@ -35,7 +36,7 @@ struct CardImportExport<I: ImportExportPr> where I.Record == CDCard {
     func exportText() throws -> String {
         let records = try interactor.exportRecords()
         let lines = records.compactMap { record -> String? in
-            guard let kanji = Kanji(record.kanjiUtf8) else {
+            guard let kanji = Kanji(record.kanjiRaw ?? []) else {
                 return nil
             }
             return "\(kanji.character);\(record.state)"
