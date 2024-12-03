@@ -52,9 +52,9 @@ struct LearnView: View {
                                               startPoint: .leading,
                                               endPoint: .bottom)
                 Button {
-                    try! viewModel.saveProgress()
+                    viewModel.restartSession()
                 } label: {
-                    Text("Save Progress")
+                    Text("Repeat")
                 }
                 .buttonStyle(ShrinkingButton(background: gradient))
                 

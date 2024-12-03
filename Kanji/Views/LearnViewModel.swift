@@ -93,10 +93,9 @@ final class LearnViewModel<S>: ObservableObject
         state = .back(guess: nil)
     }
     
-    func saveProgress() throws {
-        try session.saveCards()
+    func restartSession() {
         session.reset()
-        state = .start
+        startSession()
     }
     
     func startSession() {

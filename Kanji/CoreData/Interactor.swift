@@ -2,6 +2,7 @@ import CoreData
 
 protocol InteractorPr {
     var didSavePub: NotificationCenter.Publisher { get }
+    var viewContext: NSManagedObjectContext { get }
     func save() throws
 }
 
@@ -25,6 +26,10 @@ struct Interactor: CardInteractorPr, ImportExportPr {
         self.persistence = persistence
         self.didSavePub = NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave,
                                                                object: persistence.viewContext)
+    }
+    
+    var viewContext: NSManagedObjectContext {
+        persistence.viewContext
     }
     
     func fetchData() throws -> IndexingIterator<[Card]> {

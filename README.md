@@ -35,5 +35,3 @@ You can import the first portion of cards in Database window (*Window -> Databas
 花;1
 ...
 ```
-
-In *Database* window you can change states manually, but it's important to remember that learning session **should be saved** with *File -> Save Progress*, because cards are not published to the database automatically during the learning session.

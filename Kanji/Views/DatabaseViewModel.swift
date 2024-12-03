@@ -1,19 +1,32 @@
 import Foundation
+import CoreData
 
-final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject {
+final class DatabaseViewModel<I: CardInteractorPr>: NSObject,
+                                                    ObservableObject,
+                                                    NSFetchedResultsControllerDelegate {
     @Published var cards = [Card]()
     @Published var showingDeleteConfirmation = false
     var filteredRecordsNum = 0
     let didSavePub: NotificationCenter.Publisher
     private let interactor: I
+    private let fetchResultsController: NSFetchedResultsController<Card>
 
     init(interactor: I) {
         self.interactor = interactor
         self.didSavePub = interactor.didSavePub
+        let fetchRequest = Card.fetchRequest()
+        fetchRequest.sortDescriptors = []
+        fetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                            managedObjectContext: interactor.viewContext,
+                                                            sectionNameKeyPath: nil,
+                                                            cacheName: nil)
+        super.init()
+        fetchResultsController.delegate = self
     }
 
     func fetchData() throws {
-        cards = Array(try interactor.fetchData())
+        try fetchResultsController.performFetch()
+        cards = fetchResultsController.fetchedObjects ?? []
     }
     
     func updateState(for card: Card, with state: CardState) throws {
@@ -38,5 +51,11 @@ final class DatabaseViewModel<I: CardInteractorPr>: ObservableObject {
         }
         filteredRecordsNum = filteredCards.count
         return filteredCards
+    }
+    
+    // MARK: NSFetchedResultsControllerDelegate
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        cards = controller.fetchedObjects as? [Card] ?? []
     }
 }

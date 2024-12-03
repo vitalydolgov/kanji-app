@@ -25,10 +25,6 @@ struct KanjiApp: App {
                         state.learnViewModel.state = .loading
                     }
                     .keyboardShortcut("z")
-                    
-                    Button("Save Progress") {
-                        try! state.session.saveCards()
-                    }
                 }
                 .disabled(secondaryWindow != nil)
             })

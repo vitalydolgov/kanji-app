@@ -19,8 +19,7 @@ protocol SessionPr {
     // operation history
     func pushOperation(_ operation: Operation)
     func popOperation() -> Operation?
-    // save/reset
-    func saveCards() throws
+    // reset
     func reset()
 }
 
@@ -43,7 +42,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     let cache: Z
     private var operationHistory = OperationHistory()
     private var changeHistory = Stack<HistoryCard>()
-    private var deck = SessionDeck()
+    private var deck = Deck<Card>()
     private let interactor: I
     private let settingsProvider: S
     
@@ -54,11 +53,11 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     }
         
     var takenCard: Card? {
-        deck.value.takenCard
+        deck.takenCard
     }
     
     var cardsLeft: Int {
-        deck.value.cardsLeft
+        deck.cardsLeft
     }
     
     var isStarted: Bool {
@@ -72,7 +71,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     func reset() {
         operationHistory = OperationHistory()
         changeHistory = Stack()
-        deck = SessionDeck()
+        deck = Deck()
     }
     
     func start() throws {
@@ -81,8 +80,8 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
         let repeatCards = try interactor.fetchDataRandomized()
             .filter { $0.state == .repeat }
         if repeatCards.count > maxCardsTotal {
-            let originalCards = Array(repeatCards.prefix(maxCardsTotal))
-            deck = SessionDeck(cards: originalCards)
+            let cards = Array(repeatCards.prefix(maxCardsTotal))
+            deck = Deck(cards: cards)
             return
         }
         let maxAdditonalCards = min(maxCardsTotal - repeatCards.count, settings.maxAdditionalCards)
@@ -94,14 +93,14 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
         let recallCards = try interactor.fetchDataRandomized()
             .filter { $0.state == .learned }
             .prefix(maxAdditonalCards - newCards.count)
-        let originalCards = Array((repeatCards + newCards + recallCards).shuffled())
-        deck = SessionDeck(cards: originalCards)
+        let cards = Array((repeatCards + newCards + recallCards).shuffled())
+        deck = Deck(cards: cards)
     }
     
     func backToStart() {
         assert(operationHistory.isEmpty)
         assert(changeHistory.isEmpty)
-        deck = SessionDeck()
+        deck = Deck()
     }
     
     private func getSettings(using provider: some SettingsProviderPr) -> Settings {
@@ -112,15 +111,15 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     }
     
     func takeNextCard() throws {
-        try deck.value.takeRandomCard()
+        try deck.takeRandomCard()
     }
     
     func returnTakenCard() {
-        deck.value.returnTakenCard()
+        deck.returnTakenCard()
     }
     
     func markCard(as guess: GuessResult) {
-        guard let card = deck.value.takenCard else {
+        guard let card = deck.takenCard else {
             assertionFailure(); return
         }
         changeHistory.push(HistoryCard(from: card))
@@ -133,22 +132,20 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
         case .again:
             card.state = .new
         }
-        deck.value.putBackCard(card, success: guess == .good)
+        deck.putBackCard(card, success: guess == .good)
+        try? interactor.save()
     }
     
     func unmarkCard(as guess: GuessResult) {
         guard let history = changeHistory.pop() else {
             assertionFailure(); return
         }
-        deck.value.replaceCard(history.id, prevGuess: guess)
-        guard let card = deck.value.takenCard else {
+        deck.replaceCard(history.id, prevGuess: guess)
+        guard let card = deck.takenCard else {
             return
         }
         history.recover(card)
-    }
-    
-    func saveCards() throws {
-        try interactor.save()
+        try? interactor.save()
     }
     
     func pushOperation(_ operation: Operation) {
@@ -161,21 +158,6 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     
     func update(_ id: UUID) {
         updatePub.send(id)
-    }
-}
-
-private struct SessionDeck {
-    var value: Deck<Card>
-    let originalCards: [Card]
-    
-    init() {
-        self.value = Deck()
-        self.originalCards = []
-    }
-    
-    init(cards: [Card]) {
-        self.value = Deck(cards: cards)
-        self.originalCards = cards
     }
 }
 
