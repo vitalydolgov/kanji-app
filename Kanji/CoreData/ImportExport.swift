@@ -14,7 +14,7 @@ struct CardImportExport<I: ImportExportPr> where I.Record == Card {
             let fields = line.split(separator: ";")
             let kanjiRaw = fields[0].utf16.map { UInt16($0) }
             guard !kanjiRaw.isEmpty,
-                  let stateRaw = Int16(fields[1]) else {
+                  let stateRaw = fields.count == 2 ? Int16(fields[1]) : 0 else {
                 continue
             }
             let record = Card(context: context)
@@ -39,7 +39,7 @@ struct CardImportExport<I: ImportExportPr> where I.Record == Card {
             guard let kanji = Kanji(record.kanjiRaw ?? []) else {
                 return nil
             }
-            return "\(kanji.character);\(record.state)"
+            return "\(kanji.character);\(record.state.rawValue)"
         }
         return lines.joined(separator: "\n")
     }

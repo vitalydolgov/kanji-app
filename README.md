@@ -28,7 +28,7 @@ You can change certain learning parameters in Settings window (*Window -> Settin
 
 ## Import, export and editing
 
-You can import the first portion of cards in Database window (*Window -> Database*) with *Database -> Import*. File should have CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). It's also possible to export in this format with *Database -> Export*.
+You can import the first portion of cards in Database window (*Window -> Database*) with *Database -> Import*. File should have CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). If you don't specify status, in other words, if only kanji is provided, then status reads as *New*. You can export database in this format with *Database -> Export*.
 
 ```
 低;0
