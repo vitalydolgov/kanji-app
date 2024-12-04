@@ -1,13 +1,13 @@
 import Foundation
 
 protocol CardPr: Identifiable {
-    var kanji: Kanji? { get }
+    var kanji: Kanji? { get set }
     var state: CardState { get set }
 }
 
 struct CardImport: CardPr {
     let id = UUID()
-    let kanji: Kanji?
+    var kanji: Kanji?
     var state: CardState
     
     init(kanji: Kanji, state: CardState) {
@@ -45,7 +45,7 @@ struct KanjiData: Codable {
     }
 }
 
-struct Kanji {
+struct Kanji: Hashable {
     let character: Character
     
     init(_ character: Character) {

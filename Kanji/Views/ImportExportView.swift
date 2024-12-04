@@ -1,20 +1,21 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ImportCommand<I: ImportExportPr>: View where I.Record == Card {
+struct ImportButton<I: FileImportExportPr>: View {
     @State private var importing = false
-    let interactor: I
+    let importer: I
 
     var body: some View {
-        Button("Import") {
+        Button {
             importing = true
+        } label: {
+            Image(systemName: "square.and.arrow.down")
         }
         .fileImporter(isPresented: $importing,
                       allowedContentTypes: [.plainText]) { result in
             switch result {
             case .success(let file):
                 do {
-                    let importer = CardImportExport(interactor: interactor)
                     try importer.importFile(file)
                 } catch (let error) {
                     print(error.localizedDescription)
@@ -26,7 +27,7 @@ struct ImportCommand<I: ImportExportPr>: View where I.Record == Card {
     }
 }
 
-struct ExportCommand<I: ImportExportPr>: View where I.Record == Card {
+struct ExportCommand<I: RecordImportExportPr>: View where I.Record == Card {
     @State private var exporting = false
     @State private var document: TextDocument?
     let interactor: I
@@ -34,7 +35,7 @@ struct ExportCommand<I: ImportExportPr>: View where I.Record == Card {
     var body: some View {
         Button("Export") {
             do {
-                let exporter = CardImportExport(interactor: interactor)
+                let exporter = CardFileImportExport(interactor: interactor)
                 let text = try exporter.exportText()
                 document = TextDocument(text)
                 exporting = true

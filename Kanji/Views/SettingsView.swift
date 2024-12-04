@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject var viewModel: SettingsViewModel<SettingsInteractorUserDefaults>
+    @StateObject var viewModel: SettingsViewModel<SettingsInteractorUserDefaults>
     
     var body: some View {
         VStack {

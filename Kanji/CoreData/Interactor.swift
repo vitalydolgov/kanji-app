@@ -1,24 +1,29 @@
 import CoreData
 
 protocol InteractorPr {
+    func makeRecord<R>(in context: NSManagedObjectContext) -> R where R: NSManagedObject
+    func deleteRecord<R>(_ record: R, in context: NSManagedObjectContext) where R: NSManagedObject
+    func execute<T>(_ request: NSFetchRequest<T>, in context: NSManagedObjectContext) -> [T]
+    func save(in context: NSManagedObjectContext)
+}
+
+protocol HasViewContextPr {
     var didSavePub: NotificationCenter.Publisher { get }
     var viewContext: NSManagedObjectContext { get }
-    func save() throws
+    func makeBackgroundContext() -> NSManagedObjectContext
 }
 
-protocol CardInteractorPr: InteractorPr {
-    func fetchData() throws -> IndexingIterator<[Card]>
-    func fetchDataRandomized() throws -> IndexingIterator<[Card]>
-    func deleteAllData() throws
+protocol CardInteractorPr: InteractorPr & HasViewContextPr {
+    func linkWithExamples(_ record: Card)
+    func fetchCards() -> IndexingIterator<[Card]>
+    func fetchCardsRandomized() -> IndexingIterator<[Card]>
 }
 
-protocol ImportExportPr {
-    associatedtype Record
-    func importRecords(_ records: [Record]) throws
-    func exportRecords() throws  -> [Record]
+protocol ExampleInteractorPr: InteractorPr & HasViewContextPr {
+    func linkWithCards(_ record: Example)
 }
 
-struct Interactor: CardInteractorPr, ImportExportPr {
+struct Interactor: InteractorPr, HasViewContextPr {
     let didSavePub: NotificationCenter.Publisher
     private let persistence: NSPersistentContainer
 
@@ -32,18 +37,31 @@ struct Interactor: CardInteractorPr, ImportExportPr {
         persistence.viewContext
     }
     
-    func fetchData() throws -> IndexingIterator<[Card]> {
-        let request = Card.fetchRequest()
-        let records = try persistence.viewContext.fetch(request)
-        return records.makeIterator()
+    func makeBackgroundContext() -> NSManagedObjectContext {
+        persistence.newBackgroundContext()
     }
     
-    func fetchDataRandomized() throws -> IndexingIterator<[Card]> {
-        Array(try fetchData()).shuffled().makeIterator()
+    func makeRecord<R>(in context: NSManagedObjectContext) -> R where R: NSManagedObject {
+        R(context: context)
     }
     
-    func save() throws {
-        try persistence.viewContext.save()
+    func deleteRecord<R>(_ record: R, in context: NSManagedObjectContext) where R: NSManagedObject {
+        context.delete(record)
+    }
+    
+    func execute<T>(_ request: NSFetchRequest<T>, in context: NSManagedObjectContext) -> [T] {
+        guard let records = try? context.fetch(request) else {
+            return []
+        }
+        return records
+    }
+    
+    func save(in context: NSManagedObjectContext) {
+        do {
+            try context.save()
+        } catch {
+            assertionFailure(); context.rollback()
+        }
     }
     
     func deleteAllData() throws {
@@ -52,32 +70,62 @@ struct Interactor: CardInteractorPr, ImportExportPr {
         notifyDidSave()
     }
     
-    func importRecords(_ records: [Card]) throws {
-        var index = 0
-        let batchInsert = NSBatchInsertRequest(entity: Card.entity(),
-                                               managedObjectHandler: { object in
-            guard index < records.count, 
-                  let record = object as? Card else {
-                return true
-            }
-            let data = records[index]
-            record.kanjiRaw = data.kanjiRaw
-            record.stateRaw = data.stateRaw
-            index += 1
-            return false
-        })
-        try persistence.viewContext.execute(batchInsert)
-        notifyDidSave()
-    }
-    
-    func exportRecords() throws  -> [Card] {
-        let request = Card.fetchRequest()
-        return try persistence.viewContext.fetch(request)
-    }
-    
     private func notifyDidSave() {
         NotificationCenter.default.post(name: .NSManagedObjectContextDidSave,
                                         object: persistence.viewContext)
+    }
+}
+
+extension Interactor: CardInteractorPr {
+    func linkWithExamples(_ record: Card) {
+        guard let context = record.managedObjectContext,
+              let kanji = record.kanji else {
+            return
+        }
+        record.examples = NSSet(array: findExamples(for: String(kanji.character), in: context))
+    }
+    
+    private func findExamples(for kanji: String, in context: NSManagedObjectContext) -> [Example] {
+        let predicate = NSPredicate(format: "%K contains %@", #keyPath(Example.word), kanji)
+        let request = Example.fetchRequest()
+        request.predicate = predicate
+        return execute(request, in: context)
+    }
+    
+    func fetchCards() -> IndexingIterator<[Card]> {
+        let request = Card.fetchRequest()
+        let records = execute(request, in: persistence.viewContext)
+        return records.makeIterator()
+    }
+    
+    func fetchCardsRandomized() -> IndexingIterator<[Card]> {
+        Array(fetchCards()).shuffled().makeIterator()
+    }
+}
+
+extension Interactor: ExampleInteractorPr {
+    func linkWithCards(_ record: Example) {
+        guard let context = record.managedObjectContext,
+              let word = record.word else {
+            return
+        }
+        record.kanji = NSSet(array: findCards(for: word, in: context))
+    }
+    
+    private func findCards(for word: String, in context: NSManagedObjectContext) -> [Card] {
+        var results = [Card]()
+        for character in word {
+            let array = character.utf16.map { UInt16($0) }
+            let request = Card.fetchRequest()
+            let predicate = NSPredicate(format: "%K == %@", #keyPath(Card.kanjiRaw), array)
+            request.predicate = predicate
+            request.fetchLimit = 1
+            guard let card = execute(request, in: context).first else {
+                continue
+            }
+            results.append(card)
+        }
+        return results
     }
 }
 
@@ -85,7 +133,15 @@ struct Interactor: CardInteractorPr, ImportExportPr {
 
 extension Card: CardPr {
     var kanji: Kanji? {
-        Kanji(kanjiRaw ?? [])
+        get {
+            Kanji(kanjiRaw ?? [])
+        }
+        set {
+            guard let newValue else {
+                assertionFailure(); return
+            }
+            kanjiRaw = newValue.character.utf16.map { UInt16($0) }
+        }
     }
     
     var state: CardState {
@@ -95,5 +151,18 @@ extension Card: CardPr {
         set {
             stateRaw = Int16(newValue.rawValue)
         }
+    }
+    
+    var words: [String] {
+        guard let examples = examples as? Set<Example> else {
+            return []
+        }
+        let result = examples.compactMap { example -> String? in
+            guard let word = example.word else {
+                return nil
+            }
+            return word
+        }
+        return result
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsItemView: View {
-    @ObservedObject var viewModel: SettingsItemViewModel
+    @StateObject var viewModel: SettingsItemViewModel
     
     var body: some View {
         HStack {

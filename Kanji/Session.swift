@@ -77,7 +77,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
     func start() throws {
         let settings = getSettings(using: settingsProvider)
         let maxCardsTotal = settings.maxCardsTotal == 0 ? Int.max : settings.maxCardsTotal
-        let repeatCards = try interactor.fetchDataRandomized()
+        let repeatCards = interactor.fetchCardsRandomized()
             .filter { $0.state == .repeat }
         if repeatCards.count > maxCardsTotal {
             let cards = Array(repeatCards.prefix(maxCardsTotal))
@@ -87,10 +87,10 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
         let maxAdditonalCards = min(maxCardsTotal - repeatCards.count, settings.maxAdditionalCards)
         let newLearnedRatio = settings.newLearnedRatio
         let maxNewCards = Int(Double(maxAdditonalCards) * newLearnedRatio)
-        let newCards = try interactor.fetchData()
+        let newCards = interactor.fetchCards()
             .filter { $0.state == .new }
             .prefix(maxNewCards)
-        let recallCards = try interactor.fetchDataRandomized()
+        let recallCards = interactor.fetchCardsRandomized()
             .filter { $0.state == .learned }
             .prefix(maxAdditonalCards - newCards.count)
         let cards = Array((repeatCards + newCards + recallCards).shuffled())
@@ -133,7 +133,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
             card.state = .new
         }
         deck.putBackCard(card, success: guess == .good)
-        try? interactor.save()
+        interactor.save(in: interactor.viewContext)
     }
     
     func unmarkCard(as guess: GuessResult) {
@@ -145,7 +145,7 @@ final class Session<I, S, Z>: SessionPr, Updatable, Cached
             return
         }
         history.recover(card)
-        try? interactor.save()
+        interactor.save(in: interactor.viewContext)
     }
     
     func pushOperation(_ operation: Operation) {

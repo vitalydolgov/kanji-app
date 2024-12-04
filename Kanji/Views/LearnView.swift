@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct LearnView: View {
-    @ObservedObject var viewModel: LearnViewModel<Session<Interactor,
-                                                          SettingsInteractorUserDefaults,
-                                                          DataCacheService>>
+    @StateObject var viewModel: LearnViewModel<Session<Interactor,
+                                                       SettingsInteractorUserDefaults,
+                                                       DataCacheService>>
     
     var body: some View {
         VStack(spacing: 20) {
@@ -11,6 +11,7 @@ struct LearnView: View {
                 if let kanji = viewModel.kanji {
                     CardFrontView(state: $viewModel.state,
                                   kanji: kanji,
+                                  examples: viewModel.examples,
                                   showAnswer: viewModel.showAnswer)
                 }
             } else if case .back = viewModel.state {
@@ -103,15 +104,18 @@ struct LearnView: View {
 private struct CardFrontView: View {
     @Binding var state: LearnViewModelState
     let kanji: Kanji
+    let examples: [String]
     let showAnswer: () -> ()
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 40) {
             VStack(spacing: 10) {
                 KanjiView(kanji: kanji)
                 
                 AnswerIndicator(state: $state)
             }
+            
+            ExampleView(examples: examples)
             
             Spacer()
             
@@ -122,6 +126,18 @@ private struct CardFrontView: View {
             }
             .buttonStyle(ShrinkingButton(background: .cyan))
         }
+    }
+}
+
+private struct ExampleView: View {
+    let examples: [String]
+    
+    var body: some View {
+        StringTableView(array: examples,
+                        columns: 3,
+                        spacing: 10,
+                        display: { $0 })
+            .font(.system(size: 20))
     }
 }
 
@@ -189,20 +205,31 @@ private struct YomiView: View {
             Text(icon)
                 .bold()
             
-            table(for: yomi, columns: 3)
+            StringTableView(array: yomi,
+                            columns: 3,
+                            spacing: 5,
+                            display: { $0.value })
                 .padding(.leading, 10)
         }
         .font(.system(size: 20))
     }
+}
+
+private struct StringTableView<T: Hashable>: View {
+    let array: [T]
+    let columns: Int
+    let spacing: CGFloat
+    let display: (T) -> String
     
-    private func table(for yomi: [Yomi], columns: Int) -> some View {
-        let rows = splitYomi(by: columns)
-        return VStack(alignment: .leading) {
-            ForEach(rows, id: \.self) { (row: [Yomi]) in
+    var body: some View {
+        let rows = split(array, by: columns)
+        VStack(alignment: .leading, spacing: spacing) {
+            ForEach(rows, id: \.self) { (row: [T]) in
                 HStack(spacing: 0) {
                     let row = Array(row.enumerated())
                     ForEach(row, id: \.offset) { index, item in
-                        Text(item.value)
+                        Text(display(item))
+                            .textSelection(.enabled)
                         if index != row.count - 1 {
                             Text("\u{30FB}")
                         }
@@ -211,12 +238,12 @@ private struct YomiView: View {
             }
         }
     }
-    
-    private func splitYomi(by n: Int) -> [[Yomi]] {
-        var results = [[Yomi]]()
-        var partial = [Yomi]()
-        for y in yomi {
-            partial.append(y)
+
+    private func split(_ arr: [T], by n: Int) -> [[T]] {
+        var results = [[T]]()
+        var partial = [T]()
+        for elt in arr {
+            partial.append(elt)
             if partial.count == n {
                 results.append(partial)
                 partial.removeAll()

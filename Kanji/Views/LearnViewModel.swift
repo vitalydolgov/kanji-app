@@ -28,6 +28,10 @@ final class LearnViewModel<S>: ObservableObject
             .store(in: &subsc)
     }
     
+    var examples: [String] {
+        session.takenCard?.words ?? []
+    }
+    
     var kanji: Kanji? {
         session.takenCard?.kanji
     }

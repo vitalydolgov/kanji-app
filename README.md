@@ -19,6 +19,8 @@ Although the app takes hardcore approach, if you don't remember card, state alwa
 
 There are a couple of shortcuts: In *Learn* window you can press `space` to show back side, and `space` again to mark success, or `x` to mark failure. You can also undo your answers with `⌘Z`.
 
+In *Database* you can provide example words that will be shown while learning, e.g. *自転車* is displayed for every kanji in the word: *自*, *転*, and *車*.
+
 ### Settings
 
 You can change certain learning parameters in Settings window (*Window -> Settings*):
@@ -28,10 +30,17 @@ You can change certain learning parameters in Settings window (*Window -> Settin
 
 ## Import, export and editing
 
-You can import the first portion of cards in Database window (*Window -> Database*) with *Database -> Import*. File should have CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). If you don't specify status, in other words, if only kanji is provided, then status reads as *New*. You can export database in this format with *Database -> Export*.
+You can import the first portion of cards and examples in Database window (*Window -> Database*). For kanji import file should be in CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). If you don't specify status, in other words, if only kanji is provided, then status reads as *New*.
 
 ```
 低;0
 花;1
+...
+```
+File with examples should contain only words, on import system will match corresponding kanji automatically.
+
+```
+自転車
+男の子
 ...
 ```

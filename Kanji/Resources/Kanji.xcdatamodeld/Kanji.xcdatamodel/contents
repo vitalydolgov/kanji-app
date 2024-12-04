@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Card" representedClassName="Card" syncable="YES" codeGenerationType="class">
         <attribute name="kanjiRaw" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[UInt16]"/>
         <attribute name="stateRaw" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="cache" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DataCache" inverseName="card" inverseEntity="DataCache"/>
+        <relationship name="examples" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Example" inverseName="kanji" inverseEntity="Example"/>
     </entity>
     <entity name="DataCache" representedClassName="DataCache" syncable="YES" codeGenerationType="class">
         <attribute name="data" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="Data"/>
         <relationship name="card" maxCount="1" deletionRule="Nullify" destinationEntity="Card" inverseName="cache" inverseEntity="Card"/>
+    </entity>
+    <entity name="Example" representedClassName="Example" syncable="YES" codeGenerationType="class">
+        <attribute name="word" attributeType="String"/>
+        <relationship name="kanji" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Card" inverseName="examples" inverseEntity="Card"/>
     </entity>
 </model>

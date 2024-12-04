@@ -28,23 +28,12 @@ struct KanjiApp: App {
                 }
                 .disabled(secondaryWindow != nil)
             })
-            
-            CommandMenu("Database") {
-                Group {
-                    ImportCommand(interactor: state.interactor)
-                    
-                    ExportCommand(interactor: state.interactor)
-                    
-                    Button("Delete All") {
-                        state.databaseViewModel.showingDeleteConfirmation = true
-                    }
-                }
-                .disabled(secondaryWindow?.type != .database)
-            }
         }
         
         Window("Database", id: "database") {
-            DatabaseView(viewModel: state.databaseViewModel)
+            DatabaseView(interactor: state.interactor,
+                         cardImporter: state.cardImporter,
+                         exampleImporter: state.exampleImporter)
         }
         
         Window("Settings", id: "settings") {
@@ -55,24 +44,26 @@ struct KanjiApp: App {
 }
 
 enum Exception: Error {
-    case invalidResponse, invalidData
+    case invalidResponse, invalidData, duplicate
 }
 
 final class AppState<S: SettingsProviderPr>: ObservableObject {
     typealias SessionCo = Session<Interactor, S, DataCacheService>
-    @ObservedObject var databaseViewModel: DatabaseViewModel<Interactor>
     @ObservedObject var learnViewModel: LearnViewModel<SessionCo>
     @ObservedObject var settingsViewModel: SettingsViewModel<S>
     let interactor: Interactor
     let session: SessionCo
-    
+    let cardImporter: CardRecordImportExport<Interactor>
+    let exampleImporter: ExampleRecordImportExport<Interactor>
+
     init(persistence: NSPersistentContainer, settingsInteractor: S) throws {
         self.interactor = Interactor(persistence: persistence)
         self.session = Session(interactor: interactor,
                                settingsProvider: settingsInteractor,
                                cache: DataCacheService())
         self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())
-        self.databaseViewModel = DatabaseViewModel(interactor: interactor)
+        self.cardImporter = CardRecordImportExport(interactor: interactor)
+        self.exampleImporter = ExampleRecordImportExport(interactor: interactor)
         self.settingsViewModel = SettingsViewModel(interactor: settingsInteractor)
     }
 }
