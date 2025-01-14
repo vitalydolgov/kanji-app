@@ -48,11 +48,11 @@ enum Exception: Error {
 }
 
 final class AppState<S: SettingsProviderPr>: ObservableObject {
-    typealias SessionCo = Session<Interactor, S, DataCacheService>
-    @ObservedObject var learnViewModel: LearnViewModel<SessionCo>
+    typealias SessionConcrete = Session<Interactor, S, DataCacheService>
+    @ObservedObject var learnViewModel: LearnViewModel<SessionConcrete, Interactor>
     @ObservedObject var settingsViewModel: SettingsViewModel<S>
     let interactor: Interactor
-    let session: SessionCo
+    let session: SessionConcrete
     let cardImporter: CardRecordImportExport<Interactor>
     let exampleImporter: ExampleRecordImportExport<Interactor>
 
@@ -61,7 +61,9 @@ final class AppState<S: SettingsProviderPr>: ObservableObject {
         self.session = Session(interactor: interactor,
                                settingsProvider: settingsInteractor,
                                cache: DataCacheService())
-        self.learnViewModel = LearnViewModel(session: session, dataProvider: KanjipediaService())
+        self.learnViewModel = LearnViewModel(session: session,
+                                             databaseInteractor: interactor,
+                                             dataProvider: KanjipediaService())
         self.cardImporter = CardRecordImportExport(interactor: interactor)
         self.exampleImporter = ExampleRecordImportExport(interactor: interactor)
         self.settingsViewModel = SettingsViewModel(interactor: settingsInteractor)

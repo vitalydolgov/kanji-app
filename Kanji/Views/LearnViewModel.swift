@@ -8,20 +8,22 @@ enum LearnViewModelState: Equatable {
 }
 
 @MainActor
-final class LearnViewModel<S>: ObservableObject
-                               where S: SessionPr & Updatable & Cached,
-                                     S.OperationID == UUID {
+final class LearnViewModel<S, D>: ObservableObject
+                                  where S: SessionPr & Updatable & Cached, S.OperationID == UUID,
+                                        D: ExampleInteractorPr {
     @Published var state: LearnViewModelState = .start
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0
     private var subsc = Set<AnyCancellable>()
+    let databaseInteractor: D
     private let session: S
     private let dataProvider: KanjiDataProviderPr
     private let lock = NSLock()
 
-    init(session: S, dataProvider: some KanjiDataProviderPr) {
+    init(session: S, databaseInteractor: D, dataProvider: some KanjiDataProviderPr) {
         self.session = session
         self.dataProvider = dataProvider
+        self.databaseInteractor = databaseInteractor
         session.updatePub
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .sink { [weak self] id in self?.update(id) }

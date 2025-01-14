@@ -3,7 +3,8 @@ import SwiftUI
 struct LearnView: View {
     @StateObject var viewModel: LearnViewModel<Session<Interactor,
                                                        SettingsInteractorUserDefaults,
-                                                       DataCacheService>>
+                                                       DataCacheService>,
+                                               Interactor>
     
     var body: some View {
         VStack(spacing: 20) {
@@ -12,6 +13,7 @@ struct LearnView: View {
                     CardFrontView(state: $viewModel.state,
                                   kanji: kanji,
                                   examples: viewModel.examples,
+                                  interactor: viewModel.databaseInteractor,
                                   showAnswer: viewModel.showAnswer)
                 }
             } else if case .back = viewModel.state {
@@ -101,10 +103,12 @@ struct LearnView: View {
     }
 }
 
-private struct CardFrontView: View {
+private struct CardFrontView<I: ExampleInteractorPr>: View {
     @Binding var state: LearnViewModelState
+    @State private var showingNewExample = false
     let kanji: Kanji
     let examples: [String]
+    let interactor: I
     let showAnswer: () -> ()
     
     var body: some View {
@@ -115,7 +119,7 @@ private struct CardFrontView: View {
                 AnswerIndicator(state: $state)
             }
             
-            ExampleView(examples: examples)
+            ExampleView(showingNewExample: $showingNewExample, examples: examples.sorted())
             
             Spacer()
             
@@ -126,18 +130,50 @@ private struct CardFrontView: View {
             }
             .buttonStyle(ShrinkingButton(background: .cyan))
         }
+        .sheet(isPresented: $showingNewExample, onDismiss: {
+            state = state
+        }) {
+            let viewModel = NewExampleViewModel(interactor: interactor)
+            NewRecordView(showingDialog: $showingNewExample, viewModel: viewModel)
+        }
     }
 }
 
 private struct ExampleView: View {
+    @Binding var showingNewExample: Bool
     let examples: [String]
     
     var body: some View {
-        StringTableView(array: examples,
-                        columns: 3,
-                        spacing: 10,
-                        display: { $0 })
+        VStack {
+            StringTableView(array: examples,
+                            columns: 3,
+                            spacing: 10,
+                            display: { $0 })
             .font(.system(size: 20))
+            
+            Button {
+                showingNewExample = true
+            } label: {
+                HStack {
+                    ZStack {
+                        Circle()
+                            .fill(.gray)
+                            .frame(width: 14)
+                        
+                        Image(systemName: "plus")
+                            .resizable()
+                            .foregroundStyle(.white)
+                            .frame(width: 7, height: 7)
+                        
+                    }
+                    
+                    if examples.isEmpty {
+                        Text("Example")
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
