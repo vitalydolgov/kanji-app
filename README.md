@@ -30,7 +30,7 @@ You can change certain learning parameters in Settings window (*Window -> Settin
 
 ## Import, export and editing
 
-You can import the first portion of cards and examples in Database window (*Window -> Database*). For kanji import file should be in CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). If you don't specify status, in other words, if only kanji is provided, then status reads as *New*.
+You can import the first portion of cards and examples in *Database* window (*Window -> Database*). For kanji import file should be in CSV format with two columns separated by semicolon: kanji and integer (0 is *New* and so on). If you don't specify status, in other words, if only kanji is provided, then status reads as *New*.
 
 ```
 低;0
@@ -44,3 +44,4 @@ File with examples should contain only words, on import system will match corres
 男の子
 ...
 ```
+In *Database* window you can find button, which exports cards and examples in corresponding format.

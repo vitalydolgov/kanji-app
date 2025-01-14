@@ -9,6 +9,7 @@ protocol RecordImportExportPr {
 protocol FileImportExportPr {
     func importFile(_ file: URL) throws
     func exportText() throws -> String
+    var defaultFilename: String { get }
 }
 
 struct CardFileImportExport<I>: FileImportExportPr where I: RecordImportExportPr, I.Record == Card {
@@ -53,6 +54,10 @@ struct CardFileImportExport<I>: FileImportExportPr where I: RecordImportExportPr
             return "\(kanji.character);\(record.state.rawValue)"
         }
         return lines.joined(separator: "\n")
+    }
+    
+    var defaultFilename: String {
+        "cards.csv"
     }
 }
 
@@ -147,6 +152,10 @@ struct ExampleFileImportExport<I>: FileImportExportPr where I: RecordImportExpor
             return word
         }
         return lines.joined(separator: "\n")
+    }
+    
+    var defaultFilename: String {
+        "examples.csv"
     }
 }
 

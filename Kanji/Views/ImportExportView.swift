@@ -27,25 +27,27 @@ struct ImportButton<I: FileImportExportPr>: View {
     }
 }
 
-struct ExportCommand<I: RecordImportExportPr>: View where I.Record == Card {
+struct ExportButton<I: FileImportExportPr>: View {
     @State private var exporting = false
     @State private var document: TextDocument?
-    let interactor: I
+    let exporter: I
     
     var body: some View {
-        Button("Export") {
+        Button {
             do {
-                let exporter = CardFileImportExport(interactor: interactor)
                 let text = try exporter.exportText()
                 document = TextDocument(text)
                 exporting = true
             } catch (let error) {
                 print(error.localizedDescription)
             }
+        } label: {
+            Image(systemName: "document.badge.arrow.up")
         }
         .fileExporter(isPresented: $exporting,
                       document: document,
-                      contentType: .plainText) { result in
+                      contentType: .plainText,
+                      defaultFilename: exporter.defaultFilename) { result in
             if case .failure(let error) = result {
                 print(error.localizedDescription)
             }

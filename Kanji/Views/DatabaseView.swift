@@ -70,6 +70,8 @@ struct CardDatabaseView<I, X>: View where I: CardInteractorPr,
                 }
                 
                 ImportButton(importer: CardFileImportExport(interactor: viewModel.importer))
+                
+                ExportButton(exporter: CardFileImportExport(interactor: viewModel.importer))
             }
             .padding(.horizontal)
             .padding(.bottom, 10)
@@ -175,6 +177,8 @@ struct ExampleDatabaseView<I, X>: View where I: ExampleInteractorPr,
                 }
                 
                 ImportButton(importer: ExampleFileImportExport(interactor: viewModel.importer))
+                
+                ExportButton(exporter: ExampleFileImportExport(interactor: viewModel.importer))
             }
             .padding(.horizontal)
             .padding(.bottom, 10)
