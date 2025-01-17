@@ -14,21 +14,6 @@ struct KanjiApp: App {
         Window("Learn", id: "learn") {
             LearnView(viewModel: state.learnViewModel)
         }
-        .commands {
-            CommandGroup(after: .newItem, addition: {
-                Group {
-                    Button("Undo") {
-                        guard state.learnViewModel.state != .start else {
-                            return
-                        }
-                        OperationDispatch.unexecute(for: state.session, count: 2)
-                        state.learnViewModel.state = .loading
-                    }
-                    .keyboardShortcut("z")
-                }
-                .disabled(secondaryWindow != nil)
-            })
-        }
         
         Window("Database", id: "database") {
             DatabaseView(interactor: state.interactor,

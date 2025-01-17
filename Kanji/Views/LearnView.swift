@@ -5,6 +5,8 @@ struct LearnView: View {
                                                        SettingsInteractorUserDefaults,
                                                        DataCacheService>,
                                                Interactor>
+    @Environment(\.undoManager) var undoManager
+    
     
     var body: some View {
         VStack(spacing: 20) {
@@ -99,6 +101,11 @@ struct LearnView: View {
                 return .handled
             }
             return .ignored
+        }
+        .onAppear {
+            if viewModel.undoManager == nil {
+                viewModel.undoManager = undoManager
+            }
         }
     }
 }

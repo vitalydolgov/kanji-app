@@ -14,6 +14,7 @@ final class LearnViewModel<S, D>: ObservableObject
     @Published var state: LearnViewModelState = .start
     var kanjiData: KanjiData?
     var cardsLeft: Int = 0
+    var undoManager: UndoManager?
     private var subsc = Set<AnyCancellable>()
     let databaseInteractor: D
     private let session: S
@@ -75,6 +76,7 @@ final class LearnViewModel<S, D>: ObservableObject
         state = .loading
         let operation = Operation(type: .take)
         OperationDispatch.execute(operation, for: session)
+        registerUndo()
     }
     
     private func returnCardUnchanged() {
@@ -93,6 +95,7 @@ final class LearnViewModel<S, D>: ObservableObject
     private func returnCard(_ guess: GuessResult) {
         let operation = Operation(type: guess.operation)
         OperationDispatch.execute(operation, for: session)
+        registerUndo()
     }
     
     @MainActor func showAnswer() {
@@ -108,5 +111,14 @@ final class LearnViewModel<S, D>: ObservableObject
         let operation = Operation(type: .start)
         OperationDispatch.execute(operation, for: session)
         takeNextCard()
+    }
+    
+    private func registerUndo() {
+        undoManager?.registerUndo(withTarget: self) { targetSelf in
+            Task { @MainActor in
+                OperationDispatch.unexecute(for: targetSelf.session, count: 1)
+                targetSelf.state = .loading
+            }
+        }
     }
 }
